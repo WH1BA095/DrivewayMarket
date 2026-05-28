@@ -1,8 +1,4 @@
-
-// Управление корзиной через localStorage + серверная синхронизация
-
 const Cart = {
-    // Получить корзину
     get() {
         try {
             return JSON.parse(localStorage.getItem('driveway_cart')) || [];
@@ -11,14 +7,12 @@ const Cart = {
         }
     },
 
-    // Сохранить корзину
     save(items) {
         localStorage.setItem('driveway_cart', JSON.stringify(items));
         this.updateBadge();
         this.syncToServer(items);
     },
 
-    // Добавить товар
     add(product) {
         const items = this.get();
         const existing = items.find(i => i.id === product.id);
@@ -37,13 +31,11 @@ const Cart = {
         return items.length;
     },
 
-    // Удалить товар
     remove(id) {
         const items = this.get().filter(i => i.id !== id);
         this.save(items);
     },
 
-    // Изменить количество
     setQty(id, qty) {
         const items = this.get();
         const item = items.find(i => i.id === id);
@@ -57,22 +49,18 @@ const Cart = {
         }
     },
 
-    // Очистить корзину
     clear() {
         this.save([]);
     },
 
-    // Итог
     total() {
         return this.get().reduce((sum, i) => sum + i.price * i.qty, 0);
     },
 
-    // Количество позиций
     count() {
         return this.get().reduce((sum, i) => sum + i.qty, 0);
     },
 
-    // Синхронизация с сервером (только для авторизованных)
     syncToServer(items) {
         if (!window.CURRENT_USER_ID) return;
         fetch('api/cart.php?action=sync', {
@@ -82,7 +70,6 @@ const Cart = {
         }).catch(() => {});
     },
 
-    // Обновить available у всех товаров в корзине по актуальным данным с сервера
     refreshAvailability(callback) {
         const items = this.get();
         if (items.length === 0) { if (callback) callback(); return; }
@@ -94,7 +81,7 @@ const Cart = {
                 items.forEach(item => {
                     const fresh = map[item.id];
                     if (fresh !== undefined) {
-                        // Если сейчас в корзине больше чем в наличии — обрезаем
+                        // в корзине больше чем в наличии — обрезаем
                         if (item.qty > fresh) { item.qty = Math.max(1, fresh); changed = true; }
                         item.available = fresh;
                         changed = true;
@@ -109,7 +96,6 @@ const Cart = {
             .catch(() => { if (callback) callback(); });
     },
 
-    // Загрузить корзину с сервера и применить к localStorage (всегда, включая пустую)
     loadFromServer() {
         if (!window.CURRENT_USER_ID) return;
         fetch('api/cart.php?action=get')
@@ -133,7 +119,6 @@ const Cart = {
             .catch(() => {});
     },
 
-    // Обновить бейдж на иконке корзины
     updateBadge() {
         const count = this.count();
         let badge = document.querySelector('.cart-count');
@@ -154,7 +139,6 @@ const Cart = {
         }
     },
 
-    // Тост уведомление
     showToast(name, maxReached = false) {
         let toast = document.getElementById('cart-toast');
         if (!toast) {
@@ -186,9 +170,8 @@ const Cart = {
         toast._timer = setTimeout(() => toast.classList.remove('show'), 3000);
     },
 
-    // Инициализация кнопок "В корзину" на странице
     initButtons() {
-        // .add-to-cart-large handled by product.php with qty input — skip it here
+        // .add-to-cart-large обрабатывается в product.php вместе с полем кол-ва
         document.querySelectorAll('.add-to-cart-btn').forEach(btn => {
             if (btn.dataset.cartInit) return;
             btn.dataset.cartInit = '1';
@@ -203,7 +186,6 @@ const Cart = {
                 if (!id || !name || !price) return;
                 Cart.add({ id, name, price, image, article, available });
 
-                // Анимация кнопки
                 const orig = btn.innerHTML;
                 btn.innerHTML = '<i class="fas fa-check"></i> Добавлено';
                 btn.style.background = '#2ecc71';
@@ -217,7 +199,6 @@ const Cart = {
     }
 };
 
-// Автозапуск при загрузке страницы
 document.addEventListener('DOMContentLoaded', () => {
     Cart.loadFromServer();
     Cart.initButtons();

@@ -1,5 +1,4 @@
 <?php
-// api/get_orders.php — возвращает заказы пользователя из БД (сессионная авторизация)
 header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
 
@@ -14,7 +13,6 @@ if (!isLoggedIn()) {
 $db  = Database::getInstance()->getConnection();
 $uid = (int)$_SESSION['user_id'];
 
-// Проверяем наличие таблицы
 $tables = $db->query("SHOW TABLES LIKE 'orders'")->fetchAll();
 if (empty($tables)) {
     echo json_encode(['success' => true, 'orders' => []]);
@@ -35,7 +33,6 @@ $st->execute([$uid]);
 $orders = $st->fetchAll(PDO::FETCH_ASSOC);
 
 foreach ($orders as &$o) {
-    // Детали позиций
     $itemsSt = $db->prepare('SELECT name, article, price, quantity FROM order_items WHERE order_id=?');
     $itemsSt->execute([$o['id']]);
     $rawItems = $itemsSt->fetchAll(PDO::FETCH_ASSOC);

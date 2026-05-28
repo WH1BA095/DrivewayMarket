@@ -1,5 +1,4 @@
 <?php
-// config/db.php
 // ВНИМАНИЕ: Этот файл не коммитится в Git (.gitignore)
 // Скопируйте db.example.php → db.php и укажите свои данные
 

@@ -1,6 +1,4 @@
 <?php
-// includes/catalog_functions.php
-
 require_once 'config/db.php';
 
 class Catalog {
@@ -12,44 +10,37 @@ class Catalog {
         $this->conn = $this->db->getConnection();
     }
     
-    // Получить все категории
     public function getCategories() {
         $stmt = $this->conn->prepare("SELECT * FROM categories ORDER BY sort_order");
         $stmt->execute();
         return $stmt->fetchAll();
     }
     
-    // Получить категорию по slug
     public function getCategoryBySlug($slug) {
         $stmt = $this->conn->prepare("SELECT * FROM categories WHERE slug = ?");
         $stmt->execute([$slug]);
         return $stmt->fetch();
     }
     
-    // Получить типы товаров по категории
     public function getTypesByCategory($category_id) {
         $stmt = $this->conn->prepare("SELECT * FROM product_types WHERE category_id = ? ORDER BY name");
         $stmt->execute([$category_id]);
         return $stmt->fetchAll();
     }
     
-    // Получить все бренды авто
     public function getCarBrands() {
         $stmt = $this->conn->prepare("SELECT * FROM car_brands ORDER BY name");
         $stmt->execute();
         return $stmt->fetchAll();
     }
     
-    // Получить модели по бренду
     public function getModelsByBrand($brand_id) {
         $stmt = $this->conn->prepare("SELECT * FROM car_models WHERE brand_id = ? ORDER BY name");
         $stmt->execute([$brand_id]);
         return $stmt->fetchAll();
     }
     
-    // Получить товары с фильтрацией и количеством
-    // Получить товары с фильтрацией и сортировкой
-public function getProducts($filters = [], $limit = 12, $offset = 0) {
+    public function getProducts($filters = [], $limit = 12, $offset = 0) {
     $sql = "SELECT p.*, 
                    c.name as category_name, 
                    c.slug as category_slug,
@@ -98,7 +89,6 @@ public function getProducts($filters = [], $limit = 12, $offset = 0) {
         $params[] = $search;
     }
     
-    // СОРТИРОВКА
     if (!empty($filters['sort'])) {
         switch ($filters['sort']) {
             case 'price_asc':
@@ -133,7 +123,6 @@ public function getProducts($filters = [], $limit = 12, $offset = 0) {
     return $stmt->fetchAll();
 }
 
-    // Получить общее количество товаров по фильтрам
     public function getTotalProducts($filters = []) {
         $sql = "SELECT COUNT(*) as total FROM products p WHERE 1=1";
         $params = [];
@@ -168,7 +157,6 @@ public function getProducts($filters = [], $limit = 12, $offset = 0) {
         return $result['total'];
     }
     
-    // Получить товар по ID с доступным количеством
     public function getProductById($id) {
         $stmt = $this->conn->prepare("SELECT p.*, 
                                              c.name as category_name, 
@@ -187,7 +175,6 @@ public function getProducts($filters = [], $limit = 12, $offset = 0) {
         $product = $stmt->fetch();
         
         if ($product) {
-            // Определяем статус наличия
             if ($product['available'] > 10) {
                 $product['stock_status'] = 'Много';
                 $product['stock_class'] = 'in-stock-high';
@@ -210,7 +197,6 @@ public function getProducts($filters = [], $limit = 12, $offset = 0) {
         return $product;
     }
     
-    // Проверить доступное количество
     public function checkAvailability($product_id, $requested_quantity = 1) {
         $stmt = $this->conn->prepare("SELECT (quantity - reserved) as available 
                                       FROM products WHERE id = ?");
@@ -232,19 +218,16 @@ public function getProducts($filters = [], $limit = 12, $offset = 0) {
         ];
     }
     
-    // Зарезервировать товар (при добавлении в корзину)
     public function reserveProduct($product_id, $quantity = 1) {
         try {
             $this->conn->beginTransaction();
             
-            // Проверяем доступное количество
             $stmt = $this->conn->prepare("SELECT quantity, reserved, (quantity - reserved) as available 
                                           FROM products WHERE id = ? FOR UPDATE");
             $stmt->execute([$product_id]);
             $product = $stmt->fetch();
             
             if ($product && $product['available'] >= $quantity) {
-                // Резервируем товар
                 $stmt = $this->conn->prepare("UPDATE products 
                                               SET reserved = reserved + ? 
                                               WHERE id = ?");
@@ -262,7 +245,6 @@ public function getProducts($filters = [], $limit = 12, $offset = 0) {
         }
     }
     
-    // Отменить резерв товара
     public function releaseProduct($product_id, $quantity = 1) {
         $stmt = $this->conn->prepare("UPDATE products 
                                       SET reserved = GREATEST(reserved - ?, 0) 
@@ -270,10 +252,7 @@ public function getProducts($filters = [], $limit = 12, $offset = 0) {
         return $stmt->execute([$quantity, $product_id]);
     }
     
-    // Получить товары со скидкой
     public function getSaleProducts($limit = 10) {
-        // Здесь можно добавить логику для товаров со скидкой
-        // Например, временно берем случайные товары
         $stmt = $this->conn->prepare("SELECT p.*, 
                                              c.name as category_name,
                                              cb.name as brand_name,
@@ -288,10 +267,8 @@ public function getProducts($filters = [], $limit = 12, $offset = 0) {
         return $stmt->fetchAll();
     }
     
-    // Получить рекомендуемые товары
     public function getRecommendedProducts($product_id = null, $limit = 8) {
         if ($product_id) {
-            // Получаем товары из той же категории
             $product = $this->getProductById($product_id);
             if ($product) {
                 $stmt = $this->conn->prepare("SELECT p.*, 
@@ -311,7 +288,6 @@ public function getProducts($filters = [], $limit = 12, $offset = 0) {
             }
         }
         
-        // Если нет конкретного товара, берем случайные
         $stmt = $this->conn->prepare("SELECT p.*, 
                                              c.name as category_name,
                                              cb.name as brand_name,

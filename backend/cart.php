@@ -3,7 +3,6 @@
 <main class="main-content">
     <div class="page-container">
 
-        <!-- Хлебные крошки -->
         <div class="breadcrumbs">
             <a href="index.php">Главная</a>
             <span class="breadcrumb-separator">›</span>
@@ -12,7 +11,6 @@
 
         <h1 class="page-title"><i class="fas fa-shopping-cart"></i> Корзина</h1>
 
-        <!-- Пустая корзина -->
         <div id="cart-empty" class="cart-empty" style="display:none;">
             <div class="cart-empty-icon"><i class="fas fa-shopping-cart"></i></div>
             <h2>Корзина пуста</h2>
@@ -22,10 +20,8 @@
             </a>
         </div>
 
-        <!-- Содержимое корзины -->
         <div id="cart-content" class="cart-layout" style="display:none;">
 
-            <!-- Список товаров -->
             <div class="cart-items-col">
                 <div class="cart-card">
                     <div class="cart-card-header">
@@ -38,7 +34,6 @@
                 </div>
             </div>
 
-            <!-- Итог -->
             <div class="cart-summary-col">
                 <div class="cart-card cart-summary-card">
                     <h3 class="cart-summary-title">Итого</h3>
@@ -66,7 +61,6 @@
                         <i class="fas fa-arrow-left"></i> Продолжить покупки
                     </a>
 
-                    <!-- Способы оплаты -->
                     <div class="cart-payment-icons">
                         <i class="fab fa-cc-visa"></i>
                         <i class="fab fa-cc-mastercard"></i>
@@ -74,7 +68,6 @@
                     </div>
                 </div>
 
-                <!-- Преимущества -->
                 <div class="cart-card cart-perks">
                     <div class="cart-perk"><i class="fas fa-truck"></i><span>Бесплатная доставка от 3 000 ₽</span></div>
                     <div class="cart-perk"><i class="fas fa-shield-alt"></i><span>Гарантия качества</span></div>
@@ -115,7 +108,6 @@ document.addEventListener('DOMContentLoaded', () => {
         empty.style.display = 'none';
         content.style.display = 'grid';
 
-        // Список
         const list = document.getElementById('cart-items-list');
         list.innerHTML = items.map(item => `
             <div class="cart-item" id="item-${item.id}">
@@ -144,7 +136,6 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
         `).join('');
 
-        // Счётчик
         const totalQty = Cart.count();
         const totalSum = Cart.total();
         document.getElementById('cart-items-count').textContent = declItems(items.length);

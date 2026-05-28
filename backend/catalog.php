@@ -4,18 +4,16 @@ require_once 'includes/catalog_functions.php';
 
 $catalog = new Catalog();
 
-// Получаем фильтры из URL
 $category_slug = $_GET['category'] ?? '';
 $type_id = $_GET['type'] ?? '';
 $brand_id = $_GET['brand'] ?? '';
 $model_id = $_GET['model'] ?? '';
 $in_stock = $_GET['in_stock'] ?? '';
-$sort = $_GET['sort'] ?? 'default'; // ДОБАВЛЯЕМ СОРТИРОВКУ
+$sort = $_GET['sort'] ?? 'default';
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $limit = 12;
 $offset = ($page - 1) * $limit;
 
-// Получаем ID категории если есть slug
 $category_id = null;
 $current_category = null;
 if ($category_slug) {
@@ -23,28 +21,24 @@ if ($category_slug) {
     $category_id = $current_category['id'] ?? null;
 }
 
-// Собираем фильтры
 $filters = [
     'category_id' => $category_id,
     'type_id' => $type_id,
     'brand_id' => $brand_id,
     'model_id' => $model_id,
     'in_stock' => $in_stock,
-    'sort' => $sort // ДОБАВЛЯЕМ СОРТИРОВКУ
+    'sort' => $sort
 ];
 
-// Получаем товары
 $products = $catalog->getProducts($filters, $limit, $offset);
 $total_products = $catalog->getTotalProducts($filters);
 $total_pages = ceil($total_products / $limit);
 
-// Получаем данные для фильтров
 $categories = $catalog->getCategories();
 $types = $category_id ? $catalog->getTypesByCategory($category_id) : [];
 $brands = $catalog->getCarBrands();
 $models = $brand_id ? $catalog->getModelsByBrand($brand_id) : [];
 
-// Формируем базовый URL для фильтров
 $base_url = "catalog.php?";
 $params = [];
 if ($category_slug) $params[] = "category=$category_slug";
@@ -58,7 +52,6 @@ $filter_url = $base_url . implode('&', $params);
 <main class="main-content">
     <div class="catalog-container">
         
-        <!-- Хлебные крошки -->
         <div class="breadcrumbs">
             <a href="index.php">Главная</a>
             <span class="breadcrumb-separator">›</span>
@@ -69,7 +62,6 @@ $filter_url = $base_url . implode('&', $params);
             <?php endif; ?>
         </div>
         
-        <!-- Заголовок -->
         <div class="catalog-header">
             <h1 class="catalog-title">
                 <?= $current_category ? htmlspecialchars($current_category['name']) : 'Каталог товаров' ?>
@@ -83,7 +75,6 @@ $filter_url = $base_url . implode('&', $params);
         </div>
         
         <div class="catalog-wrapper">
-            <!-- Фильтры -->
             <aside class="catalog-filters">
                 <div class="filters-header">
                     <h3>Фильтры</h3>
@@ -92,7 +83,6 @@ $filter_url = $base_url . implode('&', $params);
                     </a>
                 </div>
                 
-                <!-- Фильтр по категориям -->
                 <div class="filter-section">
                     <h4 class="filter-title">Категории</h4>
                     <div class="filter-options">
@@ -108,7 +98,6 @@ $filter_url = $base_url . implode('&', $params);
                     </div>
                 </div>
                 
-                <!-- Фильтр по типам товаров -->
                 <?php if ($types): ?>
                 <div class="filter-section">
                     <h4 class="filter-title">Тип товара</h4>
@@ -133,7 +122,6 @@ $filter_url = $base_url . implode('&', $params);
                 </div>
                 <?php endif; ?>
                 
-                <!-- Фильтр по брендам авто -->
                 <div class="filter-section">
                     <h4 class="filter-title">Марка авто</h4>
                     <div class="filter-options">
@@ -161,7 +149,6 @@ $filter_url = $base_url . implode('&', $params);
                     </div>
                 </div>
                 
-                <!-- Фильтр по моделям авто -->
                 <?php if ($models): ?>
                 <div class="filter-section">
                     <h4 class="filter-title">Модель авто</h4>
@@ -191,7 +178,6 @@ $filter_url = $base_url . implode('&', $params);
                 </div>
                 <?php endif; ?>
                 
-                <!-- Фильтр "В наличии" -->
                 <div class="filter-section">
                     <h4 class="filter-title">Наличие</h4>
                     <div class="filter-options">
@@ -217,7 +203,6 @@ $filter_url = $base_url . implode('&', $params);
                     </div>
                 </div>
                 
-                <!-- Активные фильтры -->
                 <?php if ($category_slug || $type_id || $brand_id || $model_id || $in_stock): ?>
                 <div class="active-filters">
                     <h4 class="filter-title">Активные фильтры</h4>
@@ -302,11 +287,9 @@ $filter_url = $base_url . implode('&', $params);
                 
             </aside>
             
-            <!-- Список товаров -->
             <div class="products-section">
                 <?php if ($products): ?>
                     
-                    <!-- Сортировка -->
                     <div class="products-toolbar">
                         <div class="products-count">
                             Показано <?= count($products) ?> из <?= $total_products ?> товаров
@@ -326,26 +309,16 @@ $filter_url = $base_url . implode('&', $params);
 
                     <script>
                     function applySorting(sortValue) {
-                        // Получаем текущий URL
                         let url = new URL(window.location.href);
-                        
-                        // Добавляем или обновляем параметр sort
                         url.searchParams.set('sort', sortValue);
-                        
-                        // Если выбрано "По умолчанию", удаляем параметр sort
                         if (sortValue === 'default') {
                             url.searchParams.delete('sort');
                         }
-                        
-                        // Сохраняем параметр page=1 при изменении сортировки
                         url.searchParams.set('page', '1');
-                        
-                        // Перенаправляем на новый URL
                         window.location.href = url.toString();
                     }
                     </script>
                     
-                    <!-- Сетка товаров -->
                     <div class="products-grid">
                         <?php foreach ($products as $product): ?>
                             <div class="product-card" onclick="window.location='product.php?id=<?= $product['id'] ?>'" style="cursor:pointer">
@@ -433,7 +406,6 @@ $filter_url = $base_url . implode('&', $params);
                         <?php endforeach; ?>
                     </div>
                     
-                    <!-- Пагинация -->
                     <?php if ($total_pages > 1): ?>
                         <div class="pagination">
                             <?php if ($page > 1): ?>

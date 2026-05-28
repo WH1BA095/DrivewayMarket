@@ -1,6 +1,4 @@
 <?php
-// admin/export.php — экспорт данных в CSV (открывается в Excel)
-
 require_once '../config/auth.php';
 require_once '../config/db.php';
 
@@ -11,7 +9,7 @@ if (!isLoggedIn() || empty($_SESSION['user_is_admin'])) {
 $db   = Database::getInstance()->getConnection();
 $type = $_GET['type'] ?? 'products';
 
-// UTF-8 BOM нужен чтобы Excel корректно открыл кириллицу
+// UTF-8 BOM нужен Excel'у для корректного чтения кириллицы
 function csvOut(string $filename, array $headers, array $rows): void {
     header('Content-Type: text/csv; charset=UTF-8');
     header('Content-Disposition: attachment; filename="' . $filename . '"');
@@ -28,7 +26,6 @@ function csvOut(string $filename, array $headers, array $rows): void {
     exit;
 }
 
-/* ── Товары ──────────────────────────────────────────────────────────────── */
 if ($type === 'products') {
     $products = $db->query('
         SELECT p.id, p.name, p.article,
@@ -66,7 +63,6 @@ if ($type === 'products') {
     );
 }
 
-/* ── Пользователи ────────────────────────────────────────────────────────── */
 if ($type === 'users') {
     $users = $db->query('
         SELECT id, email,
@@ -92,7 +88,6 @@ if ($type === 'users') {
     );
 }
 
-/* ── Статистика по категориям ────────────────────────────────────────────── */
 if ($type === 'stats') {
     $stats = $db->query('
         SELECT
@@ -130,5 +125,4 @@ if ($type === 'stats') {
     );
 }
 
-// Если тип не распознан — назад в админку
 header('Location: index.php');

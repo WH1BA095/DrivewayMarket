@@ -2,7 +2,6 @@
 require_once 'includes/header.php';
 require_once 'includes/catalog_functions.php';
 
-// Избранное: проверяем состояние для текущего пользователя
 $isFavorite = false;
 if (isLoggedIn()) {
     require_once 'config/db.php';
@@ -24,10 +23,8 @@ if (!$product) {
     exit;
 }
 
-// Получаем похожие товары
 $similar_products = $catalog->getRecommendedProducts($product_id, 4);
 
-// Галерея фото
 require_once 'config/db.php';
 $galleryDb = Database::getInstance()->getConnection();
 $gallerySt = $galleryDb->prepare('SELECT id, filename FROM product_images WHERE product_id=? ORDER BY sort_order ASC');
@@ -42,7 +39,6 @@ if (empty($galleryImages) && $product['image']) {
 <main class="main-content">
     <div class="product-page-container">
         
-        <!-- Хлебные крошки -->
         <div class="breadcrumbs">
             <a href="index.php">Главная</a>
             <span class="breadcrumb-separator">›</span>
@@ -55,9 +51,7 @@ if (empty($galleryImages) && $product['image']) {
             <span class="current"><?= htmlspecialchars(mb_substr($product['name'], 0, 50)) ?>...</span>
         </div>
 
-        <!-- Основная карточка товара -->
         <div class="product-card-detailed">
-            <!-- Левая колонка - галерея -->
             <div class="product-gallery">
                 <div class="product-main-image" id="product-main-image">
                     <?php if (!empty($galleryImages)): ?>
@@ -71,7 +65,6 @@ if (empty($galleryImages) && $product['image']) {
                         </div>
                     <?php endif; ?>
                     
-                    <!-- Бейджи -->
                     <div class="product-badges-detailed">
                         <?php if ($product['available'] > 0): ?>
                             <?php if ($product['available'] < 5): ?>
@@ -109,7 +102,6 @@ if (empty($galleryImages) && $product['image']) {
                 <?php endif; ?>
             </div>
 
-            <!-- Правая колонка - информация о товаре -->
             <div class="product-info-detailed">
                 <div class="product-header">
                     <h1 class="product-title-large"><?= htmlspecialchars($product['name']) ?></h1>
@@ -138,7 +130,6 @@ if (empty($galleryImages) && $product['image']) {
                     </div>
                 </div>
 
-                <!-- Цена и наличие -->
                 <div class="product-price-section">
                     <div class="product-price-large">
                         <?= number_format($product['price'], 0, '', ' ') ?> ₽
@@ -200,7 +191,6 @@ if (empty($galleryImages) && $product['image']) {
                     </div>
                 </div>
 
-                <!-- Действия с товаром -->
                 <div class="product-actions">
                     <?php if ($product['available'] > 0): ?>
                         <div class="quantity-selector">
@@ -246,7 +236,6 @@ if (empty($galleryImages) && $product['image']) {
                     </button>
                 </div>
 
-                <!-- Информация об оплате и доставке -->
                 <div class="product-payment-info">
                     <div class="payment-method">
                         <i class="fas fa-credit-card"></i>
@@ -266,7 +255,6 @@ if (empty($galleryImages) && $product['image']) {
                     </div>
                 </div>
                 
-                <!-- Краткие характеристики -->
                 <div class="product-short-specs">
                     <div class="short-spec-item">
                         <i class="fas fa-cube"></i>
@@ -284,7 +272,6 @@ if (empty($galleryImages) && $product['image']) {
             </div>
         </div>
 
-        <!-- Блок с описанием и характеристиками -->
         <div class="product-tabs">
             <div class="tabs-header">
                 <button class="tab-btn active" data-tab="description">Описание</button>
@@ -296,7 +283,6 @@ if (empty($galleryImages) && $product['image']) {
             </div>
             
             <div class="tabs-content">
-                <!-- Описание -->
                 <div class="tab-pane active" id="tab-description">
                     <div class="product-description">
                         <?php if ($product['description']): ?>
@@ -317,7 +303,6 @@ if (empty($galleryImages) && $product['image']) {
                     </div>
                 </div>
                 
-                <!-- Характеристики -->
                 <div class="tab-pane" id="tab-specs">
                     <div class="product-specs">
                         <div class="specs-table">
@@ -373,7 +358,6 @@ if (empty($galleryImages) && $product['image']) {
                     </div>
                 </div>
                 
-                <!-- Совместимость -->
                 <div class="tab-pane" id="tab-compatibility">
                     <div class="product-compatibility">
                         <h3>Подходит для следующих автомобилей:</h3>
@@ -384,7 +368,6 @@ if (empty($galleryImages) && $product['image']) {
                                 <span class="compatibility-year">(все года)</span>
                             </div>
                             <?php
-                            // Получаем другие модели этого же бренда
                             $other_models = $catalog->getModelsByBrand($product['brand_id']);
                             foreach ($other_models as $model):
                                 if ($model['id'] != $product['model_id']):
@@ -415,10 +398,8 @@ if (empty($galleryImages) && $product['image']) {
                     </div>
                 </div>
                 
-                <!-- Отзывы -->
                 <div class="tab-pane" id="tab-reviews">
                     <div class="product-reviews">
-                        <!-- Сводка рейтинга -->
                         <div class="reviews-summary" id="reviews-summary" style="display:none;">
                             <div class="reviews-avg-num" id="avg-num">0</div>
                             <div class="reviews-avg-stars" id="avg-stars"></div>
@@ -459,7 +440,6 @@ if (empty($galleryImages) && $product['image']) {
                     </div>
                 </div>
 
-                <!-- Вопросы и ответы -->
                 <div class="tab-pane" id="tab-qa">
                     <div class="product-qa">
                         <?php if (isLoggedIn()): ?>
@@ -486,7 +466,6 @@ if (empty($galleryImages) && $product['image']) {
                     </div>
                 </div>
                 
-                <!-- Доставка -->
                 <div class="tab-pane" id="tab-delivery">
                     <div class="delivery-info-tab">
                         <div class="delivery-methods">
@@ -545,7 +524,6 @@ if (empty($galleryImages) && $product['image']) {
             </div>
         </div>
 
-        <!-- Похожие товары -->
         <?php if (!empty($similar_products)): ?>
         <div class="similar-products">
             <h2 class="section-title">Похожие товары</h2>
@@ -597,7 +575,6 @@ if (empty($galleryImages) && $product['image']) {
 </main>
 
 <script>
-// Функции для количества товара
 function decreaseQuantity() {
     let input = document.getElementById('quantity');
     let value = parseInt(input.value);
@@ -615,7 +592,6 @@ function increaseQuantity() {
     }
 }
 
-// Избранное
 const USER_LOGGED_IN = <?= isLoggedIn() ? 'true' : 'false' ?>;
 
 async function toggleFavorite(productId) {
@@ -628,7 +604,7 @@ async function toggleFavorite(productId) {
     const icon = btn.querySelector('i');
     const isActive = btn.classList.contains('active');
 
-    // Оптимистичное обновление UI
+    // оптимистичное обновление UI
     btn.classList.toggle('active');
     icon.classList.toggle('fas', !isActive);
     icon.classList.toggle('far', isActive);
@@ -641,40 +617,33 @@ async function toggleFavorite(productId) {
     try {
         const res = await fetch('api/auth.php', { method: 'POST', body: fd }).then(r => r.json());
         if (!res.success) {
-            // Откат если ошибка
+            // откат если ошибка
             btn.classList.toggle('active');
             icon.classList.toggle('fas', isActive);
             icon.classList.toggle('far', !isActive);
         }
     } catch(e) {
-        // Откат при сетевой ошибке
+        // откат при сетевой ошибке
         btn.classList.toggle('active');
         icon.classList.toggle('fas', isActive);
         icon.classList.toggle('far', !isActive);
     }
 }
 
-// Табы
 document.addEventListener('DOMContentLoaded', function() {
     const tabBtns = document.querySelectorAll('.tab-btn');
     const tabPanes = document.querySelectorAll('.tab-pane');
-    
+
     tabBtns.forEach(btn => {
         btn.addEventListener('click', function() {
-            // Убираем активный класс у всех кнопок и панелей
             tabBtns.forEach(b => b.classList.remove('active'));
             tabPanes.forEach(p => p.classList.remove('active'));
-            
-            // Добавляем активный класс текущей кнопке
             this.classList.add('active');
-            
-            // Показываем соответствующую панель
             const tabId = this.getAttribute('data-tab');
             document.getElementById(`tab-${tabId}`).classList.add('active');
         });
     });
-    
-    // Проверка актуального количества
+
     const productId = <?= $product['id'] ?>;
     
     function checkActualQuantity() {
@@ -688,8 +657,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         quantityInput.value = data.available;
                     }
                 }
-                
-                // Обновляем отображение количества
                 const stockQuantityEl = document.querySelector('.stock-quantity');
                 if (stockQuantityEl && data.available > 0) {
                     if (data.available > 20) {
@@ -700,15 +667,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
     }
-    
-    // Проверяем каждые 30 секунд
+
+    // проверяем каждые 30 секунд
     if (document.getElementById('quantity')) {
         setInterval(checkActualQuantity, 30000);
     }
 });
 
 
-// Добавление в корзину с учётом выбранного количества
 document.addEventListener('DOMContentLoaded', () => {
     const addBtn = document.querySelector('.add-to-cart-large:not(.disabled)');
     if (!addBtn) return;
@@ -757,9 +723,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-// ═══════════════════════════════════════════════════════
-//  ОТЗЫВЫ И ВОПРОСЫ
-// ═══════════════════════════════════════════════════════
 const PROD_ID  = <?= (int)$product['id'] ?>;
 const API_RV   = 'api/reviews.php';
 const LOGGED   = <?= isLoggedIn() ? 'true' : 'false' ?>;
@@ -770,7 +733,6 @@ let qaLoaded       = false;
 
 const STAR_LABELS = ['','Ужасно','Плохо','Нормально','Хорошо','Отлично'];
 
-// ── Инициализация звёзд ───────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
     const stars = document.querySelectorAll('.si-star');
     stars.forEach(btn => {
@@ -794,11 +756,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Загружаем отзывы и вопросы сразу (для счётчиков на табах)
+    // загружаем сразу — нужно для счётчиков на табах
     loadReviews();
     loadQuestions();
 
-    // Также загружаем при клике на таб
     document.getElementById('tab-btn-reviews')?.addEventListener('click', () => {
         if (!reviewsLoaded) loadReviews();
     });
@@ -807,18 +768,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-// ── Отзывы: загрузка ─────────────────────────────────
 async function loadReviews() {
     const res = await fetch(`${API_RV}?action=get_reviews&product_id=${PROD_ID}`).then(r => r.json()).catch(() => null);
     if (!res || !res.success) return;
     reviewsLoaded = true;
 
-    // Счётчик на табе
     const cnt = res.count || 0;
     const tcEl = document.getElementById('reviews-tab-count');
     if (tcEl) tcEl.textContent = cnt > 0 ? `(${cnt})` : '';
 
-    // Сводка рейтинга
     const sumEl = document.getElementById('reviews-summary');
     if (cnt > 0 && sumEl) {
         document.getElementById('avg-num').textContent  = res.avg.toFixed(1);
@@ -827,7 +785,7 @@ async function loadReviews() {
         sumEl.style.display = 'flex';
     }
 
-    // Если есть свой отзыв — подставить в форму
+    // если есть свой отзыв — подставить в форму
     if (res.my_review && LOGGED) {
         selectedRating = res.my_review.rating;
         document.querySelectorAll('.si-star').forEach((s, i) => {
@@ -874,7 +832,6 @@ function renderReviews(reviews) {
         </div>`).join('');
 }
 
-// ── Отзывы: отправить ─────────────────────────────────
 async function submitReview() {
     const body = document.getElementById('rv-body')?.value.trim();
     const title = document.getElementById('rv-title')?.value.trim();
@@ -918,7 +875,6 @@ function showRvMsg(msg, ok) {
     if (ok) setTimeout(() => el.style.display = 'none', 3500);
 }
 
-// ── Вопросы: загрузка ─────────────────────────────────
 async function loadQuestions() {
     const res = await fetch(`${API_RV}?action=get_questions&product_id=${PROD_ID}`).then(r => r.json()).catch(() => null);
     if (!res || !res.success) return;
@@ -999,7 +955,6 @@ function showQaMsg(msg, ok) {
     if (ok) setTimeout(() => el.style.display = 'none', 4000);
 }
 
-// ── Утилиты ───────────────────────────────────────────
 function renderStars(rating) {
     let s = '';
     for (let i = 1; i <= 5; i++) {
@@ -1022,7 +977,6 @@ function declReviews(n) {
 }
 function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-// ── Галерея фото ──────────────────────────────────────────────────────────
 function gallerySwitch(btn) {
     const mainImg = document.getElementById('gallery-main-img');
     if (!mainImg) return;

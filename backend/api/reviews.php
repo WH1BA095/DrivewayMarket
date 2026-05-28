@@ -1,5 +1,4 @@
 <?php
-// api/reviews.php — отзывы, вопросы, обратная связь
 require_once '../config/auth.php';
 require_once '../config/db.php';
 
@@ -19,25 +18,19 @@ $action     = $_POST['action'] ?? $_GET['action'] ?? '';
 $product_id = (int)($_POST['product_id'] ?? $_GET['product_id'] ?? 0);
 
 switch ($action) {
-    // ── Отзывы ────────────────────────────────────────────────────────────────
     case 'get_reviews':       getReviews($product_id);   break;
     case 'add_review':        addReview($product_id);    break;
     case 'delete_review':     deleteReview();            break;
     case 'get_user_reviews':  getUserReviews();          break;
-    // ── Вопросы ───────────────────────────────────────────────────────────────
     case 'get_questions':      getQuestions($product_id); break;
     case 'add_question':       addQuestion($product_id);  break;
     case 'delete_question':    deleteQuestion();          break;
     case 'get_user_questions': getUserQuestions();        break;
-    // ── Обратная связь ────────────────────────────────────────────────────────
     case 'send_support':      sendSupport();             break;
     case 'get_user_support':  getUserSupport();          break;
     default: err('Неизвестное действие');
 }
 
-/* ═══════════════════════════════════════════════════
-   ОТЗЫВЫ
-═══════════════════════════════════════════════════ */
 function getReviews(int $pid): void {
     if (!$pid) err('Не указан товар');
 
@@ -125,9 +118,6 @@ function getUserReviews(): void {
     ok(['reviews' => $st->fetchAll(PDO::FETCH_ASSOC)]);
 }
 
-/* ═══════════════════════════════════════════════════
-   ВОПРОСЫ
-═══════════════════════════════════════════════════ */
 function getQuestions(int $pid): void {
     if (!$pid) err('Не указан товар');
 
@@ -188,9 +178,6 @@ function getUserQuestions(): void {
     ok(['questions' => $st->fetchAll(PDO::FETCH_ASSOC)]);
 }
 
-/* ═══════════════════════════════════════════════════
-   ОБРАТНАЯ СВЯЗЬ
-═══════════════════════════════════════════════════ */
 function sendSupport(): void {
     $name    = mb_substr(strip_tags(trim($_POST['name']    ?? '')), 0, 100);
     $email   = mb_strtolower(mb_substr(strip_tags(trim($_POST['email'] ?? '')), 0, 150));

@@ -1,17 +1,14 @@
 <?php
-// config/auth.php — управление сессией и авторизацией
-
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-/* ── дополняем существующую таблицу users нужными колонками ─────────────── */
 function ensureAuthTables(): void {
     try {
         require_once __DIR__ . '/db.php';
         $db = Database::getInstance()->getConnection();
 
-        // Добавляем колонки, которых нет в исходной схеме (MariaDB 10.2+ поддерживает IF NOT EXISTS)
+        // IF NOT EXISTS — только MariaDB 10.2+; на MySQL < 8.0 упадёт в catch
         $db->exec("ALTER TABLE `users`
             ADD COLUMN IF NOT EXISTS `firstname`   VARCHAR(100) NOT NULL DEFAULT '',
             ADD COLUMN IF NOT EXISTS `lastname`    VARCHAR(100) NOT NULL DEFAULT '',
@@ -21,7 +18,6 @@ function ensureAuthTables(): void {
             ADD COLUMN IF NOT EXISTS `updated_at`  TIMESTAMP    NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP
         ");
 
-        // Избранное
         $db->exec("CREATE TABLE IF NOT EXISTS `user_favorites` (
             `id`         INT AUTO_INCREMENT PRIMARY KEY,
             `user_id`    INT UNSIGNED NOT NULL,
@@ -31,7 +27,6 @@ function ensureAuthTables(): void {
             FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
 
-        // Таблица автомобилей пользователя (новая)
         $db->exec("CREATE TABLE IF NOT EXISTS `user_cars` (
             `id`      INT AUTO_INCREMENT PRIMARY KEY,
             `user_id` INT UNSIGNED NOT NULL,
@@ -41,7 +36,6 @@ function ensureAuthTables(): void {
             FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
 
-        // Отзывы к товарам
         $db->exec("CREATE TABLE IF NOT EXISTS `product_reviews` (
             `id`             INT AUTO_INCREMENT PRIMARY KEY,
             `product_id`     INT NOT NULL,
@@ -58,7 +52,6 @@ function ensureAuthTables(): void {
             FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
 
-        // Вопросы по товарам
         $db->exec("CREATE TABLE IF NOT EXISTS `product_questions` (
             `id`          INT AUTO_INCREMENT PRIMARY KEY,
             `product_id`  INT NOT NULL,
@@ -72,7 +65,6 @@ function ensureAuthTables(): void {
             FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
 
-        // Обращения в поддержку
         $db->exec("CREATE TABLE IF NOT EXISTS `support_messages` (
             `id`         INT AUTO_INCREMENT PRIMARY KEY,
             `user_id`    INT UNSIGNED DEFAULT NULL,
@@ -88,7 +80,6 @@ function ensureAuthTables(): void {
             FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE SET NULL
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
 
-        // Галерея товаров (несколько фото)
         $db->exec("CREATE TABLE IF NOT EXISTS `product_images` (
             `id`         INT AUTO_INCREMENT PRIMARY KEY,
             `product_id` INT NOT NULL,
@@ -106,7 +97,6 @@ function ensureAuthTables(): void {
 
 ensureAuthTables();
 
-/* ── вспомогательные функции ─────────────────────────────────────────────── */
 function isLoggedIn(): bool {
     return isset($_SESSION['user_id']);
 }
@@ -124,7 +114,7 @@ function getCurrentUser(): ?array {
 function loginUser(array $user): void {
     session_regenerate_id(true);
 
-    // Поддержка старой схемы (full_name) и новой (firstname + lastname)
+    // обратная совместимость: full_name → firstname + lastname
     $firstname = $user['firstname'] ?? '';
     $lastname  = $user['lastname']  ?? '';
     if ($firstname === '' && !empty($user['full_name'])) {

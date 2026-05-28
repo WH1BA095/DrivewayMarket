@@ -8,7 +8,6 @@ if (!isLoggedIn() || empty($_SESSION['user_is_admin'])) {
 
 $db = Database::getInstance()->getConnection();
 
-// ── фильтры и пагинация ───────────────────────────────────────────────────
 $perPage    = 20;
 $page       = max(1, (int)($_GET['page'] ?? 1));
 $offset     = ($page - 1) * $perPage;
@@ -44,7 +43,6 @@ $stProd = $db->prepare("
 $stProd->execute($params);
 $products = $stProd->fetchAll();
 
-// ── данные для дропдаунов ─────────────────────────────────────────────────
 $categories = $db->query('SELECT id, name FROM categories ORDER BY sort_order, name')->fetchAll();
 $allBrands  = $db->query('SELECT id, name FROM car_brands ORDER BY name')->fetchAll();
 $allTypes   = $db->query('SELECT id, category_id, name FROM product_types ORDER BY name')->fetchAll();
@@ -71,7 +69,6 @@ $adminInit = strtoupper(substr($_SESSION['user_firstname'] ?: 'A', 0, 1));
 <body class="admin-body">
 <div class="admin-wrap">
 
-<!-- ─── Sidebar ─────────────────────────────────────────────────────────── -->
 <aside class="admin-sb">
     <div class="sb-logo">
         <div class="sb-logo-icon"><i class="fas fa-car-side"></i></div>
@@ -108,7 +105,6 @@ $adminInit = strtoupper(substr($_SESSION['user_firstname'] ?: 'A', 0, 1));
     </div>
 </aside>
 
-<!-- ─── Main ─────────────────────────────────────────────────────────────── -->
 <div class="admin-main">
     <header class="admin-topbar">
         <div>
@@ -123,7 +119,6 @@ $adminInit = strtoupper(substr($_SESSION['user_firstname'] ?: 'A', 0, 1));
 
     <main class="admin-content">
 
-        <!-- Фильтры -->
         <form method="GET" class="filters-bar">
             <input type="text" name="q" class="f-input" placeholder="🔍  Поиск по названию или артикулу" value="<?= h($search) ?>">
             <select name="cat" class="f-select">
@@ -144,7 +139,6 @@ $adminInit = strtoupper(substr($_SESSION['user_firstname'] ?: 'A', 0, 1));
             <?php endif; ?>
         </form>
 
-        <!-- Таблица -->
         <div class="admin-card">
             <?php if (empty($products)): ?>
             <div class="empty-state"><i class="fas fa-box-open"></i><p>Товары не найдены</p></div>
@@ -223,7 +217,6 @@ $adminInit = strtoupper(substr($_SESSION['user_firstname'] ?: 'A', 0, 1));
                 </table>
             </div>
 
-            <!-- Пагинация -->
             <?php if ($totalPages > 1): ?>
             <div class="pagination">
                 <div class="pg-info">Страница <?= $page ?> из <?= $totalPages ?> (<?= $total ?> товаров)</div>
@@ -252,7 +245,6 @@ $adminInit = strtoupper(substr($_SESSION['user_firstname'] ?: 'A', 0, 1));
 </div>
 </div>
 
-<!-- ═══ Модал: Добавить / Редактировать товар ═══════════════════════════════ -->
 <div id="productModal" class="a-overlay" style="display:none;">
     <div class="a-modal">
         <div class="modal-head">
@@ -343,7 +335,6 @@ $adminInit = strtoupper(substr($_SESSION['user_firstname'] ?: 'A', 0, 1));
     </div>
 </div>
 
-<!-- ═══ Модал: Подтверждение удаления ════════════════════════════════════════ -->
 <div id="confirmModal" class="a-overlay" style="display:none;">
     <div class="a-modal narrow">
         <div class="modal-head">
@@ -388,10 +379,9 @@ const PM = (() => {
         document.body.style.overflow = '';
     }
 
-    // ── Управление фотогалереей ─────────────────────────────────────────────
-    let imgExisting = [];   // [{id, filename, is_primary}] — уже сохранённые
-    let imgNewFiles  = [];  // File[] — новые файлы выбранные в этот раз
-    let imgToDelete  = [];  // [id] — ID для удаления при сохранении
+    let imgExisting = [];
+    let imgNewFiles  = [];
+    let imgToDelete  = [];
 
     function renderImgSlots() {
         const wrap = $('pm-img-slots');
@@ -399,7 +389,6 @@ const PM = (() => {
         wrap.innerHTML = '';
         const total = imgExisting.length + imgNewFiles.length;
 
-        // Существующие
         imgExisting.forEach((img, i) => {
             const slot = document.createElement('div');
             slot.className = 'img-slot filled';
@@ -411,7 +400,6 @@ const PM = (() => {
             wrap.appendChild(slot);
         });
 
-        // Новые (превью)
         imgNewFiles.forEach((file, i) => {
             const slot = document.createElement('div');
             slot.className = 'img-slot filled';
@@ -426,7 +414,6 @@ const PM = (() => {
             wrap.appendChild(slot);
         });
 
-        // Кнопка добавить (если < 4)
         if (total < 4) {
             const add = document.createElement('div');
             add.className = 'img-slot empty';
@@ -436,7 +423,6 @@ const PM = (() => {
             wrap.appendChild(add);
         }
 
-        // Обработчики кнопок удаления
         wrap.querySelectorAll('.img-slot-del').forEach(btn => {
             btn.addEventListener('click', e => {
                 e.stopPropagation();
@@ -514,13 +500,10 @@ const PM = (() => {
             $('pm-quantity').value    = p.quantity     ?? '';
             $('pm-description').value = p.description || '';
             $('pm-car-model').value   = p.car_model   || '';
-            // Category → Type
             fillSelect('pm-category', PHP_CATS, 'id', 'name', p.category_id);
             refreshTypes(p.category_id, p.type_id);
-            // Brand → Model
             fillSelect('pm-brand', PHP_BRANDS, 'id', 'name', p.brand_id);
             refreshModels(p.brand_id, p.model_id);
-            // Галерея
             imgExisting = (res.images || []);
             imgNewFiles  = []; imgToDelete = [];
             renderImgSlots();
@@ -534,9 +517,7 @@ const PM = (() => {
         fd.append('action', mode === 'add' ? 'create_product' : 'update_product');
         if (mode === 'edit') fd.append('id', editId);
 
-        // Новые фото
         imgNewFiles.forEach(f => fd.append('images[]', f));
-        // Удалить старые
         imgToDelete.forEach(id => fd.append('delete_images[]', id));
 
         const btn = $('pm-save-btn');
@@ -578,7 +559,6 @@ const PM = (() => {
         $('confirmModal').addEventListener('click', e => { if (e.target.id === 'confirmModal') DC.close(); });
         document.addEventListener('keydown', e => { if (e.key === 'Escape') { close(); DC.close(); } });
 
-        // Auto-open if URL param
         if (new URLSearchParams(location.search).get('modal') === 'add') open('add');
     });
 

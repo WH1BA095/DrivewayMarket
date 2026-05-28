@@ -1,9 +1,6 @@
-/* js/auth.js — логика модального окна авторизации */
-
 const AuthModal = (() => {
     const API = 'api/auth.php';
 
-    /* ── открыть/закрыть ───────────────────────────────────────────────── */
     function open(tab = 'login') {
         const overlay = document.getElementById('authModal');
         if (!overlay) return;
@@ -21,7 +18,6 @@ const AuthModal = (() => {
         clearErrors();
     }
 
-    /* ── переключение вкладок ──────────────────────────────────────────── */
     function switchTab(tab) {
         document.querySelectorAll('.auth-tab').forEach(btn => {
             btn.classList.toggle('active', btn.dataset.tab === tab);
@@ -34,7 +30,6 @@ const AuthModal = (() => {
 
     function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
 
-    /* ── очистить ошибки ───────────────────────────────────────────────── */
     function clearErrors() {
         document.querySelectorAll('.auth-error').forEach(el => {
             el.style.display = 'none';
@@ -62,7 +57,6 @@ const AuthModal = (() => {
         return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
     }
 
-    /* ── отправить форму ───────────────────────────────────────────────── */
     async function post(data) {
         const fd = new FormData();
         Object.entries(data).forEach(([k, v]) => fd.append(k, v));
@@ -70,7 +64,6 @@ const AuthModal = (() => {
         return res.json();
     }
 
-    /* ── вход ──────────────────────────────────────────────────────────── */
     async function login() {
         clearErrors();
         const email    = document.getElementById('login-email').value.trim();
@@ -99,7 +92,6 @@ const AuthModal = (() => {
         setLoading('login-submit', false);
     }
 
-    /* ── регистрация ───────────────────────────────────────────────────── */
     async function register() {
         clearErrors();
         const firstname = document.getElementById('reg-firstname').value.trim();
@@ -133,7 +125,6 @@ const AuthModal = (() => {
         setLoading('reg-submit', false);
     }
 
-    /* ── после успешного входа ─────────────────────────────────────────── */
     function onSuccess() {
         // если есть redirect-параметр — идём туда, иначе перезагружаем
         const params = new URLSearchParams(window.location.search);
@@ -145,13 +136,12 @@ const AuthModal = (() => {
         }
     }
 
-    /* ── выход ─────────────────────────────────────────────────────────── */
     async function logout() {
         await fetch(API + '?action=logout');
+        localStorage.removeItem('driveway_cart');
         window.location.href = 'index.php';
     }
 
-    /* ── состояние кнопки ──────────────────────────────────────────────── */
     function setLoading(id, loading) {
         const btn = document.getElementById(id);
         if (!btn) return;
@@ -164,9 +154,8 @@ const AuthModal = (() => {
         }
     }
 
-    /* ── инициализация ─────────────────────────────────────────────────── */
     function init() {
-        // Закрытие по клику вне окна
+        // закрытие по клику на оверлей
         const overlay = document.getElementById('authModal');
         if (overlay) {
             overlay.addEventListener('click', e => {
@@ -174,12 +163,10 @@ const AuthModal = (() => {
             });
         }
 
-        // Закрытие по Escape
         document.addEventListener('keydown', e => {
             if (e.key === 'Escape') close();
         });
 
-        // Enter в полях формы
         document.querySelectorAll('#authTabLogin input').forEach(inp => {
             inp.addEventListener('keydown', e => { if (e.key === 'Enter') login(); });
             inp.addEventListener('input', () => {
@@ -197,7 +184,6 @@ const AuthModal = (() => {
             });
         });
 
-        // Дропдаун пользователя
         const dropBtn = document.getElementById('userDropdownBtn');
         const drop    = document.getElementById('userDropdown');
         if (dropBtn && drop) {
@@ -208,7 +194,6 @@ const AuthModal = (() => {
             document.addEventListener('click', () => drop.classList.remove('open'));
         }
 
-        // Автооткрытие по URL-параметру (?auth=login или ?auth=register)
         const params = new URLSearchParams(window.location.search);
         const authParam = params.get('auth');
         if (authParam === 'login' || authParam === 'register') {

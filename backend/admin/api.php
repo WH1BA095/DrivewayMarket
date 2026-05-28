@@ -1,6 +1,4 @@
 <?php
-// admin/api.php — CRUD для товаров (только для администраторов)
-
 require_once '../config/auth.php';
 require_once '../config/db.php';
 
@@ -20,17 +18,14 @@ switch ($action) {
     case 'update_product':       handleUpdate();      break;
     case 'delete_product':       handleDelete();      break;
     case 'delete_product_image': handleDeleteImage(); break;
-    // ── Отзывы ────────────────────────────────────────────────────────────────
     case 'get_all_reviews':  adminGetReviews();  break;
     case 'reply_review':     adminReplyReview(); break;
     case 'reject_review':    adminModReview('rejected'); break;
     case 'restore_review':   adminModReview('approved'); break;
     case 'delete_review':    adminDeleteReview(); break;
-    // ── Вопросы ───────────────────────────────────────────────────────────────
     case 'get_all_questions': adminGetQuestions();  break;
     case 'answer_question':   adminAnswerQuestion(); break;
     case 'delete_question':   adminDeleteQuestion(); break;
-    // ── Обращения ─────────────────────────────────────────────────────────────
     case 'get_support':      adminGetSupport();   break;
     case 'reply_support':    adminReplySupport(); break;
     case 'mark_read':        adminMarkRead();     break;
@@ -38,9 +33,6 @@ switch ($action) {
         echo json_encode(['success' => false, 'message' => 'Неизвестное действие']);
 }
 
-/* ══════════════════════════════════════════════════════════
-   ОТЗЫВЫ — ADMIN
-══════════════════════════════════════════════════════════ */
 function adminGetReviews(): void {
     $status  = $_GET['status'] ?? 'all';
     $search  = trim($_GET['search'] ?? '');
@@ -103,9 +95,6 @@ function adminDeleteReview(): void {
     ok(['message' => 'Отзыв удалён']);
 }
 
-/* ══════════════════════════════════════════════════════════
-   ВОПРОСЫ — ADMIN
-══════════════════════════════════════════════════════════ */
 function adminGetQuestions(): void {
     $status  = $_GET['status'] ?? 'all';
     $search  = trim($_GET['search'] ?? '');
@@ -153,9 +142,6 @@ function adminDeleteQuestion(): void {
     ok(['message' => 'Вопрос удалён']);
 }
 
-/* ══════════════════════════════════════════════════════════
-   ОБРАЩЕНИЯ — ADMIN
-══════════════════════════════════════════════════════════ */
 function adminGetSupport(): void {
     $status  = $_GET['status'] ?? 'all';
     $page    = max(1, (int)($_GET['page'] ?? 1));
@@ -191,7 +177,6 @@ function adminMarkRead(): void {
     ok();
 }
 
-/* ── утилиты ─────────────────────────────────────────────────────────────── */
 function db(): PDO { return Database::getInstance()->getConnection(); }
 function ok(array $d = []): void { echo json_encode(array_merge(['success' => true], $d)); exit; }
 function err(string $m, int $code = 200): void {
@@ -201,7 +186,6 @@ function err(string $m, int $code = 200): void {
 }
 function p(string $k): string { return trim($_POST[$k] ?? ''); }
 
-/* ── получить товар ──────────────────────────────────────────────────────── */
 function handleGet(): void {
     $id = (int)($_GET['id'] ?? $_POST['id'] ?? 0);
     if (!$id) err('ID не указан');
@@ -210,7 +194,6 @@ function handleGet(): void {
     $product = $st->fetch();
     if (!$product) err('Товар не найден');
 
-    // Галерея
     $imgSt = db()->prepare('SELECT id, filename, is_primary, sort_order FROM product_images WHERE product_id=? ORDER BY sort_order ASC');
     $imgSt->execute([$id]);
     $images = $imgSt->fetchAll(PDO::FETCH_ASSOC);
@@ -218,11 +201,9 @@ function handleGet(): void {
     ok(['product' => $product, 'images' => $images]);
 }
 
-/* ── создать товар ───────────────────────────────────────────────────────── */
 function handleCreate(): void {
     $data = validate();
 
-    // Уникальность артикула
     $st = db()->prepare('SELECT id FROM products WHERE article = ?');
     $st->execute([$data['article']]);
     if ($st->fetch()) err('Товар с таким артикулом уже существует');
@@ -240,21 +221,18 @@ function handleCreate(): void {
         $data['quantity'] > 0 ? 1 : 0,
     ]);
     $productId = (int)db()->lastInsertId();
-
-    // Загружаем фото галереи
     uploadProductImages($productId);
 
     ok(['id' => $productId]);
 }
 
-/* ── обновить товар ──────────────────────────────────────────────────────── */
 function handleUpdate(): void {
     $id = (int)p('id');
     if (!$id) err('ID не указан');
 
     $data = validate();
 
-    // Уникальность артикула (исключая текущий)
+    // исключаем себя из проверки уникальности артикула
     $st = db()->prepare('SELECT id FROM products WHERE article = ? AND id != ?');
     $st->execute([$data['article'], $id]);
     if ($st->fetch()) err('Товар с таким артикулом уже существует');
@@ -274,7 +252,6 @@ function handleUpdate(): void {
     $st = db()->prepare('UPDATE products SET ' . implode(', ', $setParts) . ' WHERE id=?');
     $st->execute($params);
 
-    // Удаляем помеченные фото
     if (!empty($_POST['delete_images'])) {
         foreach ((array)$_POST['delete_images'] as $imgId) {
             $imgId = (int)$imgId;
@@ -290,13 +267,11 @@ function handleUpdate(): void {
         }
     }
 
-    // Загружаем новые фото
     uploadProductImages($id);
 
     ok();
 }
 
-/* ── удалить товар ───────────────────────────────────────────────────────── */
 function handleDelete(): void {
     $id = (int)p('id');
     if (!$id) err('ID не указан');
@@ -305,7 +280,6 @@ function handleDelete(): void {
     ok();
 }
 
-/* ── валидация полей формы ───────────────────────────────────────────────── */
 function validate(): array {
     $name      = p('name');
     $article   = p('article');
@@ -336,14 +310,12 @@ function validate(): array {
     ];
 }
 
-/* ── загрузка нескольких фото для товара ─────────────────────────────────── */
 function uploadProductImages(int $productId): void {
     if (empty($_FILES['images']['name'][0])) return;
 
     $dir = __DIR__ . '/../img/products/';
     if (!is_dir($dir)) mkdir($dir, 0755, true);
 
-    // Сколько фото уже есть
     $cntSt = db()->prepare('SELECT COUNT(*) FROM product_images WHERE product_id=?');
     $cntSt->execute([$productId]);
     $existing = (int)$cntSt->fetchColumn();
@@ -370,7 +342,6 @@ function uploadProductImages(int $productId): void {
         if (!move_uploaded_file($tmpNames[$i], $dir . $filename)) continue;
 
         $isPrimary = ($sortBase + $added === 0) ? 1 : 0;
-        // Храним полный относительный путь от корня сайта
         db()->prepare('INSERT INTO product_images (product_id, filename, sort_order, is_primary) VALUES (?,?,?,?)')
              ->execute([$productId, 'img/products/' . $filename, $sortBase + $added, $isPrimary]);
         $added++;
@@ -379,11 +350,8 @@ function uploadProductImages(int $productId): void {
     if ($added > 0) syncPrimaryImage($productId);
 }
 
-/* ── синхронизировать products.image с первым фото галереи ──────────────── */
 function syncPrimaryImage(int $productId): void {
-    // Сброс флагов
     db()->prepare('UPDATE product_images SET is_primary=0 WHERE product_id=?')->execute([$productId]);
-    // Первое по sort_order становится главным
     $st = db()->prepare('SELECT id, filename FROM product_images WHERE product_id=? ORDER BY sort_order ASC LIMIT 1');
     $st->execute([$productId]);
     $first = $st->fetch(PDO::FETCH_ASSOC);
@@ -395,7 +363,6 @@ function syncPrimaryImage(int $productId): void {
     }
 }
 
-/* ── удалить одно фото галереи ───────────────────────────────────────────── */
 function handleDeleteImage(): void {
     $imgId     = (int)p('image_id');
     $productId = (int)p('product_id');

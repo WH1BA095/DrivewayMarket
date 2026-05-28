@@ -2,7 +2,6 @@
 
 <main class="main-content">
 
-    <!-- HERO -->
     <div class="hero-section">
         <div class="hero-inner">
             <div class="hero-bg-icons" aria-hidden="true">
@@ -12,7 +11,7 @@
                 <i class="fas fa-oil-can"></i>
             </div>
             <h1 class="hero-title">Автозапчасти для любого авто</h1>
-            <p class="hero-subtitle">Более 50&nbsp;000 позиций в наличии — оригиналы и аналоги с доставкой по всей России</p>
+            <p class="hero-subtitle">Большое количество позиций в наличии — оригиналы и аналоги с доставкой по всей России</p>
             <div class="hero-actions">
                 <a href="catalog.php" class="hero-btn-primary">
                     <i class="fas fa-th-large"></i> Весь каталог
@@ -24,7 +23,6 @@
         </div>
     </div>
 
-    <!-- БЛОК "СКАЧАЙТЕ ПРИЛОЖЕНИЕ" -->
     <div class="app-section">
         <div class="app-section-inner">
             <div class="app-section-icon">
@@ -32,7 +30,7 @@
                 <img src="img/smLogo2.png" class="app-section-logo app-section-logo-dark"  alt="Driveway">
             </div>
             <div class="app-section-text">
-                <strong>Скачайте приложение Driveway</strong>
+                <strong>Скачайте наше мобильное приложение</strong>
                 <span>Магазин запчастей всегда под рукой — заказы, каталог и уведомления прямо в смартфоне</span>
             </div>
             <div class="app-section-btns">
@@ -48,16 +46,14 @@
         </div>
     </div>
 
-    <!-- РАЗДЕЛ "О НАС" -->
     <div class="about-section">
-        <h2 class="about-title">О компании Driveway</h2>
+        <h2 class="about-title">О компании</h2>
         
         <div class="about-grid">
-            <!-- Текст слева -->
             <div class="about-content">
                 <div class="about-text">
                     <p>
-                        Driveway — огромный выбор оригинальных запчастей и аналогов. 
+                        DrivewayMarket — огромный выбор оригинальных запчастей и аналогов. 
                         Сотрудничаем напрямую с производителями из 
                         Европы, Японии, Кореи и России.
                     </p>
@@ -87,7 +83,6 @@
                 </div>
             </div>
             
-            <!-- Цифры справа -->
             <div class="about-stats">
                 <div class="stat-item">
                     <div class="stat-title">Доставка</div>
@@ -109,7 +104,6 @@
         </div>
     </div>
 
-    <!-- ПРЕИМУЩЕСТВА -->
     <div class="advantages-grid">
         <div class="advantage-card">
             <div class="advantage-icon">
@@ -144,7 +138,6 @@
         </div>
     </div>
 
-    <!-- БРЕНДЫ -->
     <div class="brands-section">
         <h2 class="brands-title">Популярные бренды</h2>
         <div class="brands-grid">

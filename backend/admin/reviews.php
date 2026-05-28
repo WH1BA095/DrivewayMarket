@@ -16,10 +16,8 @@ function h(string $s): string { return htmlspecialchars($s, ENT_QUOTES); }
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link rel="stylesheet" href="../css/admin.css">
 <style>
-/* ── используем переменные из admin.css ───────────────────── */
 *, *::before, *::after { box-sizing: border-box; }
 
-/* Главные табы страницы */
 .rv-tabs { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
 .rv-tab {
     display: flex; align-items: center; gap: 8px;
@@ -38,7 +36,6 @@ function h(string $s): string { return htmlspecialchars($s, ENT_QUOTES); }
 }
 .rv-tab:not(.active) .badge { background: rgba(227,22,11,.1); color: var(--primary); }
 
-/* Фильтры */
 .rv-filters { display: flex; gap: 8px; margin-bottom: 18px; flex-wrap: wrap; align-items: center; }
 .rv-filter-btn {
     padding: 7px 14px;
@@ -58,7 +55,6 @@ function h(string $s): string { return htmlspecialchars($s, ENT_QUOTES); }
 }
 .rv-search:focus { border-color: var(--primary); }
 
-/* Карточка */
 .rv-card {
     background: var(--card-bg);
     border: 1px solid var(--border);
@@ -69,7 +65,6 @@ function h(string $s): string { return htmlspecialchars($s, ENT_QUOTES); }
 }
 .rv-card:hover { box-shadow: var(--shadow-md); }
 
-/* Шапка карточки */
 .rv-card-head { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 10px; flex-wrap: wrap; }
 .rv-avatar {
     width: 36px; height: 36px; border-radius: 50%;
@@ -83,10 +78,8 @@ function h(string $s): string { return htmlspecialchars($s, ENT_QUOTES); }
 .rv-product-link { color: var(--info); text-decoration: none; font-size: 12px; }
 .rv-product-link:hover { text-decoration: underline; }
 
-/* Звёзды */
 .stars-display { color: var(--warning); font-size: 14px; display: inline-flex; gap: 2px; }
 
-/* Статусы */
 .rv-status { padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; white-space: nowrap; display: inline-block; }
 .rv-status-approved { background: #d1fae5; color: #065f46; }
 .rv-status-rejected { background: #fee2e2; color: #991b1b; }
@@ -96,11 +89,9 @@ function h(string $s): string { return htmlspecialchars($s, ENT_QUOTES); }
 .rv-status-read     { background: var(--pg-bg); color: var(--text-2); }
 .rv-status-replied  { background: #d1fae5; color: #065f46; }
 
-/* Тело */
 .rv-title { font-weight: 600; font-size: 14px; margin-bottom: 5px; color: var(--text); }
 .rv-body  { font-size: 13px; color: var(--text); line-height: 1.65; margin-bottom: 10px; }
 
-/* Блок ответа */
 .rv-reply-block {
     background: var(--pg-bg);
     border-left: 3px solid var(--primary);
@@ -113,7 +104,6 @@ function h(string $s): string { return htmlspecialchars($s, ENT_QUOTES); }
     margin-bottom: 5px; display: flex; align-items: center; gap: 5px;
 }
 
-/* Действия */
 .rv-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 .rv-btn {
     padding: 6px 12px; border-radius: 7px; border: 1.5px solid;
@@ -130,7 +120,6 @@ function h(string $s): string { return htmlspecialchars($s, ENT_QUOTES); }
 .rv-btn-del    { border-color: var(--border);  color: var(--text-2);  }
 .rv-btn-del:hover    { border-color: var(--danger); color: var(--danger); }
 
-/* Форма ответа */
 .rv-reply-form { margin-top: 12px; display: none; }
 .rv-reply-form textarea {
     width: 100%; min-height: 80px;
@@ -152,7 +141,6 @@ function h(string $s): string { return htmlspecialchars($s, ENT_QUOTES); }
 }
 .rv-send-btn:hover { background: var(--primary-h); }
 
-/* Пустое состояние / загрузка */
 .rv-empty, .rv-loading {
     text-align: center; padding: 40px 20px;
     color: var(--text-2); font-size: 14px;
@@ -160,7 +148,6 @@ function h(string $s): string { return htmlspecialchars($s, ENT_QUOTES); }
 .rv-empty i { font-size: 36px; opacity: .25; display: block; margin-bottom: 12px; }
 .rv-loading i { font-size: 22px; display: block; margin-bottom: 8px; color: var(--text-2); }
 
-/* Пагинация */
 .pager { display: flex; gap: 6px; justify-content: center; margin-top: 20px; flex-wrap: wrap; }
 .pager button {
     padding: 6px 14px; border-radius: 7px;
@@ -171,7 +158,6 @@ function h(string $s): string { return htmlspecialchars($s, ENT_QUOTES); }
 .pager button.active   { border-color: var(--primary); background: var(--primary); color: #fff; }
 .pager button:hover:not(.active) { border-color: var(--primary); color: var(--primary); }
 
-/* Обращения */
 .sup-subject { font-weight: 600; font-size: 14px; margin-bottom: 6px; color: var(--text); }
 .sup-message {
     font-size: 13px; line-height: 1.65; color: var(--text);
@@ -231,7 +217,6 @@ function h(string $s): string { return htmlspecialchars($s, ENT_QUOTES); }
 </header>
 
 <div class="admin-content">
-    <!-- Главные табы -->
     <div class="rv-tabs">
         <button class="rv-tab active" onclick="switchMain('reviews')" id="mtab-reviews">
             <i class="fas fa-star"></i> Отзывы <span class="badge" id="badge-reviews">...</span>
@@ -244,7 +229,6 @@ function h(string $s): string { return htmlspecialchars($s, ENT_QUOTES); }
         </button>
     </div>
 
-    <!-- ════ ОТЗЫВЫ ════ -->
     <div id="section-reviews">
         <div class="rv-filters">
             <button class="rv-filter-btn active" onclick="setFilter('reviews','all',this)">Все</button>
@@ -256,7 +240,6 @@ function h(string $s): string { return htmlspecialchars($s, ENT_QUOTES); }
         <div class="pager" id="pager-reviews"></div>
     </div>
 
-    <!-- ════ ВОПРОСЫ ════ -->
     <div id="section-questions" style="display:none">
         <div class="rv-filters">
             <button class="rv-filter-btn active" onclick="setFilter('questions','all',this)">Все</button>
@@ -267,7 +250,6 @@ function h(string $s): string { return htmlspecialchars($s, ENT_QUOTES); }
         <div id="list-questions"><div class="rv-loading"><i class="fas fa-spinner fa-spin"></i> Загрузка...</div></div>
     </div>
 
-    <!-- ════ ОБРАЩЕНИЯ ════ -->
     <div id="section-support" style="display:none">
         <div class="rv-filters">
             <button class="rv-filter-btn active" onclick="setFilter('support','all',this)">Все</button>
@@ -291,7 +273,6 @@ let state = {
 let debounceT = {};
 let currentMain = 'reviews';
 
-// ── Утилиты ───────────────────────────────────────────────────────────────────
 function stars(n) {
     let s = '';
     for (let i = 1; i <= 5; i++) s += `<i class="${i <= n ? 'fas' : 'far'} fa-star"></i>`;
@@ -307,7 +288,6 @@ function avatar(name) {
     return `<div class="rv-avatar">${c}</div>`;
 }
 
-// ── Переключение главных табов ────────────────────────────────────────────────
 function switchMain(tab) {
     currentMain = tab;
     ['reviews','questions','support'].forEach(t => {
@@ -317,7 +297,6 @@ function switchMain(tab) {
     load(tab);
 }
 
-// ── Фильтры ───────────────────────────────────────────────────────────────────
 function setFilter(tab, val, btn) {
     state[tab].filter = val;
     state[tab].page   = 1;
@@ -335,7 +314,6 @@ function debounceSearch(tab) {
     }, 400);
 }
 
-// ── Загрузка данных ───────────────────────────────────────────────────────────
 async function load(tab) {
     const s   = state[tab];
     let url   = API + '?';
@@ -351,7 +329,6 @@ async function load(tab) {
     if (tab === 'support')   renderSupport(res.messages || []);
 }
 
-// ── Счётчики ─────────────────────────────────────────────────────────────────
 async function loadBadges() {
     const [rv, qu, su] = await Promise.all([
         fetch(API + '?action=get_all_reviews&status=all&page=1').then(r => r.json()),
@@ -363,7 +340,6 @@ async function loadBadges() {
     if (su.success) document.getElementById('badge-support').textContent   = (su.messages||[]).length > 0 ? (su.messages||[]).length + '!' : '0';
 }
 
-// ── Рендер: Отзывы ────────────────────────────────────────────────────────────
 function renderReviews(reviews, total, pages) {
     const el = document.getElementById('list-reviews');
     if (!reviews.length) { el.innerHTML = '<div class="rv-empty"><i class="far fa-comment-dots"></i>Отзывов нет</div>'; return; }
@@ -403,7 +379,6 @@ function renderReviews(reviews, total, pages) {
             </div>
         </div>`).join('');
 
-    // Пагинация
     const pg = document.getElementById('pager-reviews');
     if (pages <= 1) { pg.innerHTML = ''; return; }
     let html = '';
@@ -413,7 +388,6 @@ function renderReviews(reviews, total, pages) {
     pg.innerHTML = html;
 }
 
-// ── Рендер: Вопросы ───────────────────────────────────────────────────────────
 function renderQuestions(questions) {
     const el = document.getElementById('list-questions');
     if (!questions.length) { el.innerHTML = '<div class="rv-empty"><i class="far fa-question-circle"></i>Вопросов нет</div>'; return; }
@@ -447,11 +421,10 @@ function renderQuestions(questions) {
         </div>`).join('');
 }
 
-// ── Рендер: Обращения ─────────────────────────────────────────────────────────
 function renderSupport(msgs) {
     const el = document.getElementById('list-support');
     if (!msgs.length) { el.innerHTML = '<div class="rv-empty"><i class="far fa-envelope"></i>Обращений нет</div>'; return; }
-    // Auto-mark new messages as read when admin views them
+    // при просмотре помечаем новые как прочитанные
     msgs.filter(m => m.status === 'new').forEach(m => markRead(m.id));
     el.innerHTML = msgs.map(m => `
         <div class="rv-card" id="sm-${m.id}">
@@ -480,7 +453,6 @@ function renderSupport(msgs) {
         </div>`).join('');
 }
 
-// ── Действия ─────────────────────────────────────────────────────────────────
 function toggleReplyForm(prefix, id) {
     const f = document.getElementById(`rform-${prefix}-${id}`);
     f.style.display = f.style.display === 'none' || !f.style.display ? 'block' : 'none';
@@ -557,7 +529,6 @@ function goPage(tab, page) {
     load(tab);
 }
 
-// ── Init ─────────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
     loadBadges();
     load('reviews');

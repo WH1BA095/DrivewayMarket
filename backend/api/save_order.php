@@ -1,5 +1,4 @@
 <?php
-// api/save_order.php — сохраняет заказ с сайта в общую БД
 header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST, OPTIONS');
@@ -31,7 +30,6 @@ $address = trim($data['address']  ?? '');
 $comment = trim($data['comment']  ?? '');
 $userId  = null;
 
-// Определяем user_id: из сессии (если залогинен на сайте) или по email
 if (isLoggedIn()) {
     $userId = (int)$_SESSION['user_id'];
 } elseif (!empty($data['email'])) {
@@ -56,7 +54,6 @@ foreach ($items as $item) {
 
 $db = Database::getInstance()->getConnection();
 
-// Автосоздание таблиц если нет
 $db->exec("CREATE TABLE IF NOT EXISTS `orders` (
     `id`         INT AUTO_INCREMENT PRIMARY KEY,
     `user_id`    INT UNSIGNED NOT NULL,
@@ -80,12 +77,10 @@ $db->exec("CREATE TABLE IF NOT EXISTS `order_items` (
     KEY `idx_order` (`order_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
 
-// Добавляем колонку user_order_number если нет
 try { $db->exec("ALTER TABLE orders ADD COLUMN IF NOT EXISTS user_order_number INT UNSIGNED DEFAULT NULL"); } catch (\Throwable $e) {}
 
 $db->beginTransaction();
 try {
-    // Следующий порядковый номер для этого пользователя
     $nSt = $db->prepare('SELECT COALESCE(MAX(user_order_number), 0) + 1 FROM orders WHERE user_id=?');
     $nSt->execute([$userId]);
     $userOrderNum = (int)$nSt->fetchColumn();

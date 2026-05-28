@@ -13,7 +13,7 @@ $user = $stmt->fetch();
 
 if (!$user) { logoutUser(); header('Location: index.php?auth=login'); exit; }
 
-// Совместимость со старым full_name
+// обратная совместимость: full_name → firstname + lastname
 if (empty($user['firstname']) && !empty($user['full_name'])) {
     $parts             = explode(' ', trim($user['full_name']), 2);
     $user['firstname'] = $parts[0] ?? '';
@@ -41,11 +41,9 @@ function h(string $s): string { return htmlspecialchars($s, ENT_QUOTES); }
 
         <div class="profile-layout">
 
-            <!-- ── Сайдбар ── -->
             <aside class="profile-sidebar">
                 <div class="cart-card profile-avatar-card">
 
-                    <!-- Аватарка с возможностью загрузки -->
                     <div class="avatar-upload-wrap">
                         <label for="avatar-file-input" class="avatar-upload-label" title="Нажмите, чтобы изменить фото">
                             <?php if ($avatar && file_exists($avatar)): ?>
@@ -100,10 +98,8 @@ function h(string $s): string { return htmlspecialchars($s, ENT_QUOTES); }
                 </div>
             </aside>
 
-            <!-- ── Вкладки ── -->
             <div class="profile-main">
 
-                <!-- Мои данные -->
                 <div id="tab-info" class="profile-tab active">
                     <div class="cart-card">
                         <h2 class="profile-section-title"><i class="fas fa-id-card"></i> Личные данные</h2>
@@ -156,7 +152,6 @@ function h(string $s): string { return htmlspecialchars($s, ENT_QUOTES); }
                     </div>
                 </div>
 
-                <!-- Избранное -->
                 <div id="tab-favorites" class="profile-tab">
                     <div class="cart-card">
                         <h2 class="profile-section-title"><i class="fas fa-heart"></i> Избранные товары</h2>
@@ -164,7 +159,6 @@ function h(string $s): string { return htmlspecialchars($s, ENT_QUOTES); }
                     </div>
                 </div>
 
-                <!-- Мои заказы -->
                 <div id="tab-orders" class="profile-tab">
                     <div class="cart-card">
                         <h2 class="profile-section-title"><i class="fas fa-box"></i> История заказов</h2>
@@ -172,7 +166,6 @@ function h(string $s): string { return htmlspecialchars($s, ENT_QUOTES); }
                     </div>
                 </div>
 
-                <!-- Мои автомобили -->
                 <div id="tab-cars" class="profile-tab">
                     <div class="cart-card">
                         <h2 class="profile-section-title"><i class="fas fa-car"></i> Мои автомобили</h2>
@@ -199,7 +192,6 @@ function h(string $s): string { return htmlspecialchars($s, ENT_QUOTES); }
                     </div>
                 </div>
 
-                <!-- Мои отзывы -->
                 <div id="tab-reviews" class="profile-tab">
                     <div class="cart-card">
                         <h2 class="profile-section-title"><i class="fas fa-star"></i> Мои отзывы</h2>
@@ -215,7 +207,6 @@ function h(string $s): string { return htmlspecialchars($s, ENT_QUOTES); }
                     </div>
                 </div>
 
-                <!-- Безопасность -->
                 <div id="tab-pass" class="profile-tab">
                     <div class="cart-card">
                         <h2 class="profile-section-title"><i class="fas fa-lock"></i> Смена пароля</h2>
@@ -258,9 +249,7 @@ function h(string $s): string { return htmlspecialchars($s, ENT_QUOTES); }
                     </div>
                 </div>
 
-                <!-- Обращения -->
                 <div id="tab-support" class="profile-tab">
-                    <!-- Новое обращение -->
                     <div class="cart-card" style="margin-bottom:20px;">
                         <h2 class="profile-section-title"><i class="fas fa-paper-plane"></i> Новое обращение</h2>
                         <div class="profile-form" style="max-width:540px;">
@@ -279,7 +268,6 @@ function h(string $s): string { return htmlspecialchars($s, ENT_QUOTES); }
                             </button>
                         </div>
                     </div>
-                    <!-- История обращений -->
                     <div class="cart-card">
                         <h2 class="profile-section-title"><i class="fas fa-history"></i> История обращений</h2>
                         <div id="profile-support-list">
@@ -302,7 +290,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const API = 'api/auth.php';
 
-    // ── Вкладки ──────────────────────────────────────────────────────────────
     const tabs = document.querySelectorAll('.profile-nav-item[data-tab]');
     tabs.forEach(link => {
         link.addEventListener('click', e => {
@@ -318,14 +305,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Открыть вкладку по хэшу URL
     const hash = location.hash.replace('#', '');
     if (hash) {
         const link = document.querySelector(`.profile-nav-item[data-tab="${hash}"]`);
         if (link) link.click();
     }
 
-    // ── Аватарка ──────────────────────────────────────────────────────────────
     document.getElementById('avatar-file-input').addEventListener('change', async function() {
         const file = this.files[0];
         if (!file) return;
@@ -342,7 +327,6 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const res = await fetch(API, { method: 'POST', body: fd }).then(r => r.json());
             if (res.success) {
-                // Показываем новую аватарку
                 const label = document.querySelector('.avatar-upload-label');
                 const icon  = document.getElementById('avatar-preview-icon');
                 let img = document.getElementById('avatar-preview-img');
@@ -368,7 +352,6 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => msg.style.display = 'none', 3000);
     });
 
-    // ── Личные данные ─────────────────────────────────────────────────────────
     async function saveProfile(extraField = null) {
         const fd = new FormData();
         fd.append('action',    'update_profile');
@@ -402,7 +385,6 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => el.style.display = 'none', 3000);
     }
 
-    // ── Смена пароля ──────────────────────────────────────────────────────────
     document.getElementById('save-pass-btn').addEventListener('click', async () => {
         const msg = document.getElementById('pass-msg');
         const fd  = new FormData();
@@ -423,10 +405,9 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => msg.style.display = 'none', 3500);
     });
 
-    // ── Заказы ────────────────────────────────────────────────────────────────
     const ordersList = document.getElementById('orders-list');
 
-    // 1. Синхронизируем localStorage → БД (перенос старых заказов), затем очищаем LS
+    // синхронизируем localStorage → БД, потом удаляем из LS
     const lsOrdersRaw = JSON.parse(localStorage.getItem('driveway_orders') || '[]');
     if (lsOrdersRaw.length > 0) {
         fetch('api/sync_orders.php', {
@@ -436,13 +417,11 @@ document.addEventListener('DOMContentLoaded', () => {
             body:        JSON.stringify({ orders: lsOrdersRaw }),
         })
         .then(() => {
-            // После успешной синхронизации очищаем localStorage — теперь всё в БД
             localStorage.removeItem('driveway_orders');
         })
         .catch(() => {});
     }
 
-    // 2. Загружаем ТОЛЬКО из БД (заказы привязаны к user_id, localStorage не нужен)
     fetch('api/get_orders.php', { credentials: 'same-origin' })
         .then(r => r.json())
         .then(res => {
@@ -469,7 +448,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 renderOrders([]);
             }
         })
-        .catch(() => renderOrders([])); // Фолбэк — пустой список
+        .catch(() => renderOrders([]));
 
     function renderOrders(orders) {
 
@@ -521,7 +500,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             return `
             <div class="order-receipt" id="order-${o.id}">
-                <!-- Шапка квитанции -->
                 <div class="receipt-head">
                     <div class="receipt-head-left">
                         <span class="receipt-number">Заказ&nbsp;#${escHtml(o.displayNum)}</span>
@@ -529,7 +507,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 </div>
 
-                <!-- Товары -->
                 <table class="receipt-items">
                     <tbody>${itemsHtml}</tbody>
                     <tfoot>
@@ -540,7 +517,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     </tfoot>
                 </table>
 
-                <!-- Детали доставки и оплаты -->
                 <div class="receipt-meta">
                     <div class="receipt-meta-item">
                         <i class="fas ${delIcon}"></i>
@@ -569,9 +545,8 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>`;
         }).join('');
     }
-    } // end renderOrders
+    }
 
-    // ── Автомобили ────────────────────────────────────────────────────────────
     let cars = [];
     async function loadCars() {
         const res = await fetch(API + '?action=get_cars').then(r => r.json());
@@ -616,7 +591,6 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     loadCars();
 
-    // ── Избранное ─────────────────────────────────────────────────────────────
     let favLoaded = false;
 
     async function loadFavorites() {
@@ -689,12 +663,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // При первом открытии вкладки избранного
     if (location.hash === '#tab-favorites') loadFavorites();
     if (location.hash === '#tab-reviews')   loadMyReviews();
     if (location.hash === '#tab-support')   loadMySupport();
 
-    // ── Мои отзывы и вопросы ──────────────────────────────────────────────────
     let myRvLoaded = false;
     const RV_API = 'api/reviews.php';
 
@@ -707,7 +679,6 @@ document.addEventListener('DOMContentLoaded', () => {
             fetch(RV_API + '?action=get_user_questions').then(r => r.json())
         ]);
 
-        // Счётчик в навигации
         const totalRv = (rvRes.success ? rvRes.reviews.length : 0)
                       + (qRes.success  ? qRes.questions.length : 0);
         const badge = document.getElementById('rv-nav-badge');
@@ -809,7 +780,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
-    // ── Обращения ─────────────────────────────────────────────────────────────
     let supLoaded = false;
 
     async function loadMySupport() {

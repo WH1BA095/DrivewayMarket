@@ -17,7 +17,6 @@ requireLogin('index.php');
 
         <h1 class="page-title"><i class="fas fa-credit-card"></i> Оформление заказа</h1>
 
-        <!-- Пустая корзина -->
         <div id="checkout-empty" style="display:none;" class="cart-empty">
             <div class="cart-empty-icon"><i class="fas fa-shopping-cart"></i></div>
             <h2>Корзина пуста</h2>
@@ -25,7 +24,6 @@ requireLogin('index.php');
             <a href="catalog.php" class="btn-primary-lg"><i class="fas fa-arrow-left"></i> В каталог</a>
         </div>
 
-        <!-- Успешный заказ -->
         <div id="checkout-success" style="display:none;" class="checkout-success">
             <div class="success-icon"><i class="fas fa-check-circle"></i></div>
             <h2>Заказ оформлен!</h2>
@@ -37,13 +35,10 @@ requireLogin('index.php');
             </div>
         </div>
 
-        <!-- Форма заказа -->
         <div id="checkout-form" class="checkout-layout">
 
-            <!-- Левая колонка -->
             <div class="checkout-left">
 
-                <!-- Шаг 1: Контакты -->
                 <div class="cart-card checkout-step">
                     <div class="checkout-step-header">
                         <div class="checkout-step-num">1</div>
@@ -67,7 +62,6 @@ requireLogin('index.php');
                     </div>
                 </div>
 
-                <!-- Шаг 2: Доставка -->
                 <div class="cart-card checkout-step">
                     <div class="checkout-step-header">
                         <div class="checkout-step-num">2</div>
@@ -107,7 +101,6 @@ requireLogin('index.php');
                         </label>
                     </div>
 
-                    <!-- Блок самовывоза -->
                     <div id="block-pickup" class="delivery-extra-block" style="margin-top:16px;">
                         <div class="pickup-points">
                             <label class="pickup-point active-pickup">
@@ -121,7 +114,6 @@ requireLogin('index.php');
                         </div>
                     </div>
 
-                    <!-- Блок адреса курьера -->
                     <div id="block-courier" class="delivery-extra-block profile-form" style="display:none; margin-top:16px;">
                         <div class="profile-form-group">
                             <label>Адрес доставки <span class="req">*</span></label>
@@ -139,7 +131,6 @@ requireLogin('index.php');
                         </div>
                     </div>
 
-                    <!-- Блок адреса почты -->
                     <div id="block-post" class="delivery-extra-block profile-form" style="display:none; margin-top:16px;">
                         <div class="profile-form-group">
                             <label>Адрес для отправки <span class="req">*</span></label>
@@ -161,17 +152,15 @@ requireLogin('index.php');
                     </div>
                 </div>
 
-                <!-- Шаг 3: Оплата -->
                 <div class="cart-card checkout-step">
                     <div class="checkout-step-header">
                         <div class="checkout-step-num">3</div>
                         <h2>Способ оплаты</h2>
                     </div>
 
-                    <!-- Опции динамически рендерятся JS -->
                     <div id="payment-group" class="delivery-options"></div>
 
-                    <!-- Подпанель онлайн-оплаты (карта / СБП) -->
+
                     <div id="online-pay-panel" style="display:none; margin-top:18px;">
                         <div class="pay-method-tabs">
                             <button class="pay-method-tab active" id="pmtab-sbp" onclick="onlineTab('sbp')">
@@ -182,7 +171,6 @@ requireLogin('index.php');
                             </button>
                         </div>
 
-                        <!-- СБП -->
                         <div id="opanel-sbp" class="opanel">
                             <p class="opanel-hint">После подтверждения заказа откроется окно с QR‑кодом для оплаты через банковское приложение</p>
                             <div class="sbp-logos">
@@ -193,7 +181,6 @@ requireLogin('index.php');
                             </div>
                         </div>
 
-                        <!-- Карта -->
                         <div id="opanel-card" class="opanel" style="display:none;">
                             <div class="card-secure-note">
                                 <i class="fas fa-lock"></i>
@@ -241,7 +228,6 @@ requireLogin('index.php');
                     </div>
                 </div>
 
-                <!-- Шаг 4: Комментарий -->
                 <div class="cart-card checkout-step">
                     <div class="checkout-step-header">
                         <div class="checkout-step-num">4</div>
@@ -254,7 +240,6 @@ requireLogin('index.php');
 
             </div>
 
-            <!-- Правая колонка: сводка -->
             <div class="cart-summary-col">
                 <div class="cart-card cart-summary-card" style="position:sticky;top:90px;">
                     <h3 class="cart-summary-title">Ваш заказ</h3>
@@ -294,7 +279,6 @@ requireLogin('index.php');
     </div>
 </main>
 
-<!-- ═══════════════════════ СБП МОДАЛЬНОЕ ОКНО ═══════════════════════ -->
 <div id="sbp-modal" class="sbp-modal-overlay" style="display:none;" onclick="if(event.target===this)closeSbpModal()">
     <div class="sbp-modal">
         <button class="sbp-modal-close" onclick="closeSbpModal()"><i class="fas fa-times"></i></button>
@@ -348,9 +332,6 @@ requireLogin('index.php');
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="js/cart.js"></script>
 <script>
-// ─────────────────────────────────────────────────────────────────────────────
-// Конфиг способов оплаты по типу доставки
-// ─────────────────────────────────────────────────────────────────────────────
 const PAY_CONFIGS = {
     pickup: [
         { value: 'online',     icon: 'fas fa-globe',          title: 'Оплатить онлайн',       sub: 'СБП или банковская карта' },
@@ -383,7 +364,6 @@ let currentOnlineTab = 'sbp';
 let sbpTimerInterval = null;
 let orderTotal = 0;
 
-// ─────────────────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
     Cart.updateBadge();
 
@@ -394,7 +374,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
-    // Заполнить данными профиля
     const profile = JSON.parse(localStorage.getItem('driveway_profile') || '{}');
     if (profile.firstname || profile.lastname)
         document.getElementById('co-name').value = [profile.firstname, profile.lastname].filter(Boolean).join(' ');
@@ -402,7 +381,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (profile.email)   document.getElementById('co-email').value   = profile.email;
     if (profile.address) document.getElementById('co-address').value = profile.address;
 
-    // Рендер товаров в сводке
     orderTotal = Cart.total();
     document.getElementById('co-items-list').innerHTML = items.map(i => `
         <div class="co-item">
@@ -414,15 +392,11 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('co-price').textContent = fmt(orderTotal) + ' ₽';
     document.getElementById('co-total').textContent = fmt(orderTotal) + ' ₽';
 
-    // Первичный рендер опций оплаты
     renderPaymentOptions('pickup');
 
-    // Переключение доставки
     document.querySelectorAll('#delivery-group input[name="delivery"]').forEach(radio => {
         radio.addEventListener('change', () => {
             currentDelivery = radio.value;
-
-            // Активный стиль
             document.querySelectorAll('#delivery-group .dopt').forEach(el => el.classList.remove('active'));
             radio.closest('.dopt').classList.add('active');
 
@@ -435,27 +409,21 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Переключение пунктов самовывоза
     document.querySelectorAll('input[name="pickup_point"]').forEach(radio => {
         radio.addEventListener('change', () => {
             document.querySelectorAll('.pickup-point').forEach(el => el.classList.remove('active-pickup'));
             radio.closest('.pickup-point').classList.add('active-pickup');
         });
     });
-    // Синхронизируем начальное состояние (первый checked)
     const defaultPickup = document.querySelector('input[name="pickup_point"]:checked');
     if (defaultPickup) {
         document.querySelectorAll('.pickup-point').forEach(el => el.classList.remove('active-pickup'));
         defaultPickup.closest('.pickup-point').classList.add('active-pickup');
     }
 
-    // Оформить заказ
     document.getElementById('place-order-btn').addEventListener('click', placeOrder);
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Рендер опций оплаты
-// ─────────────────────────────────────────────────────────────────────────────
 function renderPaymentOptions(delivery) {
     const group = document.getElementById('payment-group');
     const opts  = PAY_CONFIGS[delivery];
@@ -473,7 +441,6 @@ function renderPaymentOptions(delivery) {
             </div>
         </label>`).join('');
 
-    // Вешаем события на новые радио
     group.querySelectorAll('input[name="payment"]').forEach(radio => {
         radio.addEventListener('change', () => {
             currentPayment = radio.value;
@@ -484,15 +451,11 @@ function renderPaymentOptions(delivery) {
         });
     });
 
-    // По умолчанию первый вариант = online → показать панель
     currentPayment = opts[0].value;
     document.getElementById('online-pay-panel').style.display =
         currentPayment === 'online' ? 'block' : 'none';
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Переключение СБП / Карта
-// ─────────────────────────────────────────────────────────────────────────────
 window.onlineTab = function(tab) {
     currentOnlineTab = tab;
     document.getElementById('opanel-sbp').style.display  = tab === 'sbp'  ? 'block' : 'none';
@@ -501,15 +464,11 @@ window.onlineTab = function(tab) {
     document.getElementById('pmtab-card').classList.toggle('active', tab === 'card');
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Форматирование карты
-// ─────────────────────────────────────────────────────────────────────────────
 window.fmtCard = function(el) {
     let v = el.value.replace(/\D/g, '').slice(0, 16);
     el.value = v.replace(/(.{4})/g, '$1 ').trim();
     document.getElementById('cv-number').textContent =
         (el.value || '•••• •••• •••• ••••').padEnd(19, '•').replace(/(.{4})/g, '$1 ').trim() || '•••• •••• •••• ••••';
-    // Определяем платёжную систему
     const first = v[0];
     const typeEl = document.getElementById('cv-type');
     if      (first === '4') typeEl.innerHTML = '<i class="fab fa-cc-visa"></i>';
@@ -524,19 +483,16 @@ window.fmtExpiry = function(el) {
     document.getElementById('cv-expiry').textContent = v || 'ММ/ГГ';
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// СБП Модальное окно
-// ─────────────────────────────────────────────────────────────────────────────
 function openSbpModal(amount) {
     const modal = document.getElementById('sbp-modal');
     document.getElementById('sbp-amount-display').textContent = fmt(amount) + ' ₽';
     modal.style.display = 'flex';
     document.body.style.overflow = 'hidden';
 
-    // Генерируем QR (qrcodejs API)
+    // qrcodejs API: генерируем QR с фиктивным URL НСПК
     const qrData  = `https://qr.nspk.ru/AS1${Date.now()}?amount=${amount * 100}&currency=643&payee=Driveway`;
     const container = document.getElementById('sbp-qr-container');
-    container.innerHTML = ''; // очистить предыдущий
+    container.innerHTML = '';
     if (window.QRCode) {
         new QRCode(container, {
             text: qrData,
@@ -548,7 +504,7 @@ function openSbpModal(amount) {
         });
     }
 
-    // Таймер 10 минут
+    // таймер 10 минут
     let seconds = 600;
     clearInterval(sbpTimerInterval);
     sbpTimerInterval = setInterval(() => {
@@ -566,14 +522,10 @@ window.closeSbpModal = function() {
     clearInterval(sbpTimerInterval);
 };
 
-// Закрытие по Escape
 document.addEventListener('keydown', e => {
     if (e.key === 'Escape') closeSbpModal();
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Оформление заказа
-// ─────────────────────────────────────────────────────────────────────────────
 function placeOrder() {
     const name  = document.getElementById('co-name').value.trim();
     const phone = document.getElementById('co-phone').value.trim();
@@ -590,7 +542,6 @@ function placeOrder() {
 
     const delivery = document.querySelector('input[name="delivery"]:checked').value;
 
-    // Проверка адреса
     if (delivery === 'courier') {
         if (!document.getElementById('co-address').value.trim()) {
             showError('Введите адрес доставки'); return;
@@ -607,7 +558,6 @@ function placeOrder() {
 
     const paymentVal = document.querySelector('input[name="payment"]:checked')?.value || 'online';
 
-    // Проверка карты при онлайн-оплате картой
     if (paymentVal === 'online' && currentOnlineTab === 'card') {
         const num = document.getElementById('card-number').value.replace(/\s/g,'');
         if (num.length < 16) { showError('Введите корректный номер карты'); return; }
@@ -615,7 +565,6 @@ function placeOrder() {
         if (document.getElementById('card-cvv').value.length < 3) { showError('Введите CVV / CVC'); return; }
     }
 
-    // Определяем тип оплаты для сохранения
     let paymentType, paymentLabel;
     if (paymentVal === 'online') {
         paymentType  = currentOnlineTab === 'sbp' ? 'online_sbp' : 'online_card';
@@ -625,7 +574,6 @@ function placeOrder() {
         paymentLabel = PAYMENT_LABELS[paymentVal] || paymentVal;
     }
 
-    // Строим объект доставки
     const deliveryObj = { type: delivery, label: DELIVERY_LABELS[delivery] };
     if (delivery === 'courier') {
         deliveryObj.address = document.getElementById('co-address').value.trim();
@@ -662,14 +610,12 @@ function placeOrder() {
         comment:  document.getElementById('co-comment').value.trim()
     };
 
-    // СБП → сначала показываем QR, потом сохраняем заказ после закрытия
+    // СБП: показываем QR, заказ сохраняем сразу (имитация инициации платежа)
     if (paymentType === 'online_sbp') {
         openSbpModal(total);
 
-        // Сохраняем заказ сразу (имитация инициации платежа)
         saveOrderAndClear(order);
 
-        // Кнопка "Оплачено" внутри модала
         const existingBtn = document.getElementById('sbp-paid-btn');
         if (!existingBtn) {
             const btn = document.createElement('button');
@@ -691,14 +637,13 @@ function placeOrder() {
 }
 
 function saveOrderAndClear(order) {
-    // 1. Сохраняем локально (для гостей и резерва)
+    // двойное сохранение: localStorage (для гостей) + БД (user_id из сессии)
     const orders = JSON.parse(localStorage.getItem('driveway_orders') || '[]');
     orders.unshift(order);
     localStorage.setItem('driveway_orders', JSON.stringify(orders));
     Cart.clear();
     Cart.updateBadge();
 
-    // 2. Также сохраняем в БД (если есть сессия — user_id подставится автоматически)
     const payload = {
         items:   order.items,
         address: (order.delivery && order.delivery.address) ? order.delivery.address : '',

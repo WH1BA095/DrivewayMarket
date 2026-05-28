@@ -1,6 +1,4 @@
 <?php
-// api/app.php — Mobile REST API (token-based auth)
-
 header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
@@ -14,7 +12,6 @@ ensureTokensTable();
 ensureOrdersTables();
 ensureCartTable();
 
-/* ── helpers ─────────────────────────────────────────────────────────────── */
 function db(): PDO { return Database::getInstance()->getConnection(); }
 
 function ok(array $data = []): void {
@@ -79,10 +76,10 @@ function ensureOrdersTables(): void {
         KEY `idx_user` (`user_id`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
 
-    // Добавляем колонку user_order_number если её нет (для существующих БД)
+    // Добавляем колонку если нет — для старых БД без неё
     try {
         db()->exec("ALTER TABLE orders ADD COLUMN IF NOT EXISTS user_order_number INT UNSIGNED DEFAULT NULL");
-        // Нумеруем существующие заказы (где номер ещё не присвоен)
+        // Нумеруем существующие заказы без порядкового номера
         db()->exec("
             UPDATE orders o
             INNER JOIN (
@@ -92,7 +89,7 @@ function ensureOrdersTables(): void {
             SET o.user_order_number = ranked.rn
             WHERE o.user_order_number IS NULL
         ");
-    } catch (\Throwable $e) { /* колонка уже есть */ }
+    } catch (\Throwable $e) { /* колонка уже есть — игнорируем */ }
 
     db()->exec("CREATE TABLE IF NOT EXISTS `order_items` (
         `id`         INT AUTO_INCREMENT PRIMARY KEY,
@@ -105,7 +102,6 @@ function ensureOrdersTables(): void {
         KEY `idx_order` (`order_id`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
 
-    // Таблица вопросов — создаём если нет
     db()->exec("CREATE TABLE IF NOT EXISTS `product_questions` (
         `id`          INT AUTO_INCREMENT PRIMARY KEY,
         `product_id`  INT NOT NULL,
@@ -151,7 +147,6 @@ function formatUser(array $u): array {
     ];
 }
 
-/* ── router ─────────────────────────────────────────────────────────────── */
 $action = $_GET['action'] ?? (body()['action'] ?? '');
 
 switch ($action) {
@@ -189,13 +184,11 @@ switch ($action) {
     default: err('Неизвестное действие');
 }
 
-/* ── CATEGORIES ──────────────────────────────────────────────────────────── */
 function getCategories(): void {
     $st = db()->query('SELECT id, name, slug, icon FROM categories ORDER BY sort_order');
     ok(['categories' => $st->fetchAll()]);
 }
 
-/* ── PRODUCTS ─────────────────────────────────────────────────────────────── */
 function getProducts(): void {
     $page    = max(1, (int)($_GET['page']     ?? 1));
     $perPage = min(20, max(1, (int)($_GET['per_page'] ?? 12)));
@@ -242,7 +235,6 @@ function getProducts(): void {
     $st->execute($pParams);
     $products = $st->fetchAll();
 
-    // Подтягиваем доп. изображения для каждого товара
     $ids = array_column($products, 'id');
     $extraImages = [];
     if ($ids) {
@@ -262,14 +254,13 @@ function getProducts(): void {
         $imgs = $extraImages[$p['id']] ?? [];
         if (empty($imgs) && $p['image']) $imgs = [$p['image']];
         $p['images'] = $imgs;
-        if ($imgs) $p['image'] = $imgs[0]; // главная = первая
+        if ($imgs) $p['image'] = $imgs[0];
     }
 
     ok(['products' => $products, 'total' => $total, 'page' => $page,
         'per_page' => $perPage, 'pages' => (int)ceil($total / $perPage)]);
 }
 
-/* ── PRODUCT DETAIL ──────────────────────────────────────────────────────── */
 function getProduct(): void {
     $id = (int)($_GET['id'] ?? 0);
     if (!$id) err('ID не указан');
@@ -295,13 +286,11 @@ function getProduct(): void {
     $product['price']        = (float)$product['price'];
     $product['available']    = (int)($product['quantity'] - $product['reserved']);
 
-    // gallery
     $imgSt = db()->prepare('SELECT id, filename FROM product_images WHERE product_id=? ORDER BY sort_order');
     $imgSt->execute([$id]);
     $images = $imgSt->fetchAll();
     if (empty($images) && $product['image']) $images = [['id'=>0,'filename'=>$product['image']]];
 
-    // reviews
     $revSt = db()->prepare("
         SELECT r.id, r.rating, r.title, r.body, r.admin_reply, r.created_at,
                CONCAT(u.firstname,' ',u.lastname) AS author, u.avatar
@@ -312,13 +301,11 @@ function getProduct(): void {
     $revSt->execute([$id]);
     $reviews = $revSt->fetchAll();
 
-    // similar
     $simSt = db()->prepare('SELECT id, name, price, image FROM products WHERE category_id=? AND id!=? LIMIT 6');
     $simSt->execute([$product['category_id'], $id]);
     $similar = $simSt->fetchAll();
     foreach ($similar as &$s) $s['price'] = (float)$s['price'];
 
-    // is favorited
     $isFav = false;
     if ($user = getAuthUser()) {
         $fSt = db()->prepare('SELECT 1 FROM user_favorites WHERE user_id=? AND product_id=?');
@@ -329,7 +316,6 @@ function getProduct(): void {
     ok(['product'=>$product, 'images'=>$images, 'reviews'=>$reviews, 'similar'=>$similar, 'is_favorited'=>$isFav]);
 }
 
-/* ── BRANDS / MODELS ─────────────────────────────────────────────────────── */
 function getBrands(): void {
     $st = db()->query('SELECT id, name, slug FROM car_brands ORDER BY name');
     ok(['brands' => $st->fetchAll()]);
@@ -342,7 +328,6 @@ function getModels(): void {
     ok(['models' => $st->fetchAll()]);
 }
 
-/* ── AUTH ────────────────────────────────────────────────────────────────── */
 function handleLogin(): void {
     $email    = bp('email');
     $password = body()['password'] ?? '';
@@ -396,7 +381,6 @@ function handleLogout(): void {
     ok();
 }
 
-/* ── PROFILE ─────────────────────────────────────────────────────────────── */
 function getProfile(): void {
     $user = requireAuth();
     $st = db()->prepare('SELECT id,firstname,lastname,full_name,email,phone,birthdate,address,avatar,created_at FROM users WHERE id=?');
@@ -431,7 +415,6 @@ function changePassword(): void {
     ok();
 }
 
-/* ── FAVORITES ───────────────────────────────────────────────────────────── */
 function getFavorites(): void {
     $user = requireAuth();
     $st = db()->prepare("
@@ -469,7 +452,6 @@ function toggleFavorite(): void {
     }
 }
 
-/* ── CARS ────────────────────────────────────────────────────────────────── */
 function getUserCars(): void {
     $user = requireAuth();
     $st = db()->prepare('SELECT id,brand,model,year FROM user_cars WHERE user_id=? ORDER BY id DESC');
@@ -494,7 +476,6 @@ function deleteCar(): void {
     ok();
 }
 
-/* ── REVIEWS ─────────────────────────────────────────────────────────────── */
 function getMyReviews(): void {
     $user = requireAuth();
     $st = db()->prepare("
@@ -522,7 +503,6 @@ function addReview(): void {
     ok();
 }
 
-/* ── QUESTIONS ───────────────────────────────────────────────────────────── */
 function getMyQuestions(): void {
     $user = requireAuth();
     $st = db()->prepare("
@@ -535,7 +515,6 @@ function getMyQuestions(): void {
     ok(['questions' => $st->fetchAll()]);
 }
 
-/* ── ORDERS ─────────────────────────────────────────────────────────────── */
 function getMyOrders(): void {
     $user = requireAuth();
     try {
@@ -556,7 +535,6 @@ function getMyOrders(): void {
             $o['id']                = (int)$o['id'];
             $o['user_order_number'] = (int)($o['user_order_number'] ?? $o['id']);
 
-            // Позиции заказа
             $iSt = db()->prepare('SELECT name, article, price, quantity FROM order_items WHERE order_id=?');
             $iSt->execute([$o['id']]);
             $items = $iSt->fetchAll();
@@ -602,7 +580,6 @@ function placeOrder(): void {
     $payment  = trim($data['payment_type']  ?? $data['payment']  ?? 'online');
 
     if (empty($items)) err('Корзина пуста');
-    // Адрес обязателен только для курьера и почты
     if ($delivery !== 'pickup' && !$address) err('Укажите адрес доставки');
 
     $total = 0;
@@ -610,7 +587,6 @@ function placeOrder(): void {
         $total += (float)($item['price'] ?? 0) * (int)($item['quantity'] ?? 1);
     }
 
-    // Если самовывоз — ставим стандартный адрес точки
     if ($delivery === 'pickup' && !$address) {
         $address = 'Самовывоз';
     }
@@ -618,7 +594,6 @@ function placeOrder(): void {
     $db = db();
     $db->beginTransaction();
     try {
-        // Следующий порядковый номер заказа для этого пользователя
         $nSt = $db->prepare('SELECT COALESCE(MAX(user_order_number), 0) + 1 FROM orders WHERE user_id=?');
         $nSt->execute([$user['id']]);
         $userOrderNum = (int)$nSt->fetchColumn();
@@ -658,7 +633,6 @@ function cancelOrder(): void {
     ok();
 }
 
-/* ── UPLOAD AVATAR ─────────────────────────────────────────────────────────── */
 function uploadAvatar(): void {
     $user = requireAuth();
 
@@ -696,7 +670,6 @@ function uploadAvatar(): void {
     ok(['avatar' => $path]);
 }
 
-/* ── PRODUCT QUESTIONS ───────────────────────────────────────────────────── */
 function getProductQuestions(): void {
     $pid = (int)($_GET['product_id'] ?? 0);
     if (!$pid) err('product_id не указан');
@@ -740,7 +713,6 @@ function addProductQuestion(): void {
     ok(['message' => 'Вопрос отправлен! Ответим в ближайшее время.']);
 }
 
-/* ── SUPPORT MESSAGES ────────────────────────────────────────────────────── */
 function sendSupport(): void {
     $user = getAuthUser();
     $b    = body();
@@ -750,7 +722,7 @@ function sendSupport(): void {
     $subject = mb_substr(strip_tags(trim($b['subject'] ?? '')), 0, 120);
     $message = mb_substr(strip_tags(trim($b['message'] ?? '')), 0, 5000);
 
-    // If logged in and fields empty — fill from profile
+    // Если залогинен и поля пустые — берём из профиля
     if ($user) {
         if (!$name)  $name  = trim(($user['firstname'] ?? '') . ' ' . ($user['lastname'] ?? ''));
         if (!$email) $email = $user['email'] ?? '';
@@ -779,7 +751,6 @@ function getMySupport(): void {
     ok(['messages' => $st->fetchAll()]);
 }
 
-/* ── CART SYNC ───────────────────────────────────────────────────────────── */
 function getCart(): void {
     $user = requireAuth();
     $st = db()->prepare("SELECT product_id AS id, quantity AS qty, name, price, image, article, available FROM user_cart WHERE user_id = ? ORDER BY updated_at DESC");

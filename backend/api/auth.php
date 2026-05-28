@@ -1,6 +1,4 @@
 <?php
-// api/auth.php — регистрация, вход, выход, обновление профиля
-
 require_once __DIR__ . '/../config/auth.php';
 require_once __DIR__ . '/../config/db.php';
 
@@ -32,7 +30,6 @@ switch ($action) {
         echo json_encode(['success' => false, 'message' => 'Неизвестное действие']);
 }
 
-/* ── утилиты ─────────────────────────────────────────────────────────────── */
 function ok(array $data = []): void {
     echo json_encode(array_merge(['success' => true], $data));
     exit;
@@ -51,7 +48,6 @@ function p(string $key, int $maxLen = 255): string {
     return mb_substr($val, 0, $maxLen);
 }
 
-/* ── регистрация ─────────────────────────────────────────────────────────── */
 function handleRegister(): void {
     $firstname = p('firstname', 60);
     $lastname  = p('lastname',  60);
@@ -87,7 +83,6 @@ function handleRegister(): void {
     ok(['user' => ['id' => $id, 'firstname' => $firstname, 'lastname' => $lastname, 'email' => $email]]);
 }
 
-/* ── вход ────────────────────────────────────────────────────────────────── */
 function handleLogin(): void {
     $email = mb_strtolower(p('email', 150));
     $pass  = $_POST['password'] ?? '';
@@ -113,7 +108,6 @@ function handleLogin(): void {
     ]]);
 }
 
-/* ── обновление профиля ──────────────────────────────────────────────────── */
 function handleUpdateProfile(): void {
     if (!isLoggedIn()) err('Не авторизован');
 
@@ -138,7 +132,6 @@ function handleUpdateProfile(): void {
     ok();
 }
 
-/* ── смена пароля ────────────────────────────────────────────────────────── */
 function handleChangePass(): void {
     if (!isLoggedIn()) err('Не авторизован');
 
@@ -163,7 +156,6 @@ function handleChangePass(): void {
     ok();
 }
 
-/* ── получить профиль ────────────────────────────────────────────────────── */
 function handleGetProfile(): void {
     if (!isLoggedIn()) err('Не авторизован');
 
@@ -172,7 +164,6 @@ function handleGetProfile(): void {
     ok(['user' => $st->fetch()]);
 }
 
-/* ── автомобили ──────────────────────────────────────────────────────────── */
 function handleAddCar(): void {
     if (!isLoggedIn()) err('Не авторизован');
 
@@ -197,7 +188,6 @@ function handleRemoveCar(): void {
     ok();
 }
 
-/* ── загрузка аватарки ───────────────────────────────────────────────────── */
 function handleUploadAvatar(): void {
     if (!isLoggedIn()) err('Не авторизован');
 
@@ -235,7 +225,6 @@ function handleUploadAvatar(): void {
     ok(['avatar' => $path]);
 }
 
-/* ── избранное ───────────────────────────────────────────────────────────── */
 function handleGetFavorites(): void {
     if (!isLoggedIn()) err('Не авторизован');
 
@@ -259,7 +248,6 @@ function handleAddFavorite(): void {
     $productId = (int)p('product_id');
     if (!$productId) err('ID товара не указан');
 
-    // Проверяем что товар существует
     $st = db()->prepare('SELECT id FROM products WHERE id=?');
     $st->execute([$productId]);
     if (!$st->fetch()) err('Товар не найден');

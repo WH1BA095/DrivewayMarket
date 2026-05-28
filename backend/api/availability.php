@@ -1,5 +1,4 @@
 <?php
-// api/availability.php — returns current available qty for given product IDs
 header('Content-Type: application/json; charset=utf-8');
 require_once __DIR__ . '/../config/db.php';
 

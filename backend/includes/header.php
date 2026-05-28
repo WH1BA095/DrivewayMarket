@@ -6,7 +6,7 @@ $currentUser = getCurrentUser();
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Driveway - Автозапчасти</title>
+    <title>DrivewayMarket</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <!-- Font Awesome -->
@@ -179,7 +179,7 @@ $currentUser = getCurrentUser();
                         <a href="profile.php" class="user-dropdown-item">
                             <i class="fas fa-id-card"></i> Личный кабинет
                         </a>
-                        <a href="api/auth.php?action=logout" class="user-dropdown-item user-dropdown-logout">
+                        <a href="#" onclick="AuthModal.logout(); return false;" class="user-dropdown-item user-dropdown-logout">
                             <i class="fas fa-sign-out-alt"></i> Выйти
                         </a>
                     </div>

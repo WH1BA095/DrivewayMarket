@@ -1,5 +1,4 @@
 <?php
-// api/sync_orders.php — синхронизация заказов из localStorage в БД
 header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST, OPTIONS');
@@ -34,7 +33,6 @@ if (empty($orders)) {
 $db     = Database::getInstance()->getConnection();
 $userId = (int)$_SESSION['user_id'];
 
-// Создаём таблицы если нет
 $db->exec("CREATE TABLE IF NOT EXISTS `orders` (
     `id`         INT AUTO_INCREMENT PRIMARY KEY,
     `user_id`    INT UNSIGNED NOT NULL,
@@ -58,8 +56,7 @@ $db->exec("CREATE TABLE IF NOT EXISTS `order_items` (
     KEY `idx_order` (`order_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
 
-// Получаем уже существующие заказы для дедупликации
-// Сравниваем по user_id + total + дата (с погрешностью в 1 день)
+// дедупликация по user_id + total + день
 $existingSt = $db->prepare(
     "SELECT total, DATE(created_at) AS day FROM orders WHERE user_id=?"
 );
@@ -81,11 +78,9 @@ foreach ($orders as $order) {
     }
     $comment  = trim($order['comment'] ?? '');
     $status   = $order['status'] ?? 'pending';
-    // Нормализуем статус под ENUM
     $validStatuses = ['pending','confirmed','shipped','delivered','cancelled'];
     if (!in_array($status, $validStatuses)) $status = 'pending';
 
-    // Дата заказа из localStorage
     $createdAt = null;
     if (!empty($order['datetime'])) {
         try {
@@ -93,7 +88,7 @@ foreach ($orders as $order) {
             $createdAt = $dt->format('Y-m-d H:i:s');
         } catch (Exception $e) {}
     } elseif (!empty($order['date'])) {
-        // Формат "01.06.2025"
+        // формат "01.06.2025" из localStorage
         $parts = explode('.', $order['date']);
         if (count($parts) === 3) {
             $createdAt = $parts[2] . '-' . $parts[1] . '-' . $parts[0] . ' 00:00:00';
@@ -101,7 +96,6 @@ foreach ($orders as $order) {
     }
     if (!$createdAt) $createdAt = date('Y-m-d H:i:s');
 
-    // Дедупликация: если заказ с таким total+день уже есть — пропускаем
     $day = substr($createdAt, 0, 10);
     $key = number_format($total, 2, '.', '') . '|' . $day;
     if (isset($existing[$key])) continue;
