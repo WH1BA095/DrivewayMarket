@@ -1,4 +1,5 @@
 <?php
+ob_start();
 header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
@@ -15,10 +16,12 @@ ensureCartTable();
 function db(): PDO { return Database::getInstance()->getConnection(); }
 
 function ok(array $data = []): void {
+    ob_end_clean();
     echo json_encode(array_merge(['success' => true], $data), JSON_UNESCAPED_UNICODE);
     exit;
 }
 function err(string $msg, int $code = 400): void {
+    ob_end_clean();
     http_response_code($code);
     echo json_encode(['success' => false, 'message' => $msg], JSON_UNESCAPED_UNICODE);
     exit;
