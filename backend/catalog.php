@@ -502,8 +502,13 @@ $filter_url = $base_url . implode('&', $params);
                 <?php else: ?>
                     <div class="no-products">
                         <i class="fas fa-box-open"></i>
+                        <?php if ($search): ?>
+                        <h3>Ничего не найдено</h3>
+                        <p>По запросу «<?= htmlspecialchars($search) ?>» товаров не найдено</p>
+                        <?php else: ?>
                         <h3>Товары не найдены</h3>
                         <p>Попробуйте изменить параметры фильтрации</p>
+                        <?php endif; ?>
                         <a href="catalog.php" class="reset-filters-btn">
                             <i class="fas fa-undo-alt"></i> Сбросить фильтры
                         </a>
