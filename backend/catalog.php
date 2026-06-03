@@ -12,8 +12,8 @@ $in_stock = $_GET['in_stock'] ?? '';
 $sort = $_GET['sort'] ?? 'default';
 $search = trim($_GET['search'] ?? '');
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-$limit = 12;
-$offset = ($page - 1) * $limit;
+$limit = $search ? 100 : 12;
+$offset = $search ? 0 : ($page - 1) * $limit;
 
 $category_id = null;
 $current_category = null;
@@ -414,7 +414,7 @@ $filter_url = $base_url . implode('&', $params);
                         <?php endforeach; ?>
                     </div>
                     
-                    <?php if ($total_pages > 1): ?>
+                    <?php if ($total_pages > 1 && !$search): ?>
                         <div class="pagination">
                             <?php if ($page > 1): ?>
                                 <a href="?<?= http_build_query(array_merge(

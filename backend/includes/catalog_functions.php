@@ -150,7 +150,15 @@ class Catalog {
         if (!empty($filters['in_stock'])) {
             $sql .= " AND (p.quantity - p.reserved) > 0";
         }
-        
+
+        if (!empty($filters['search'])) {
+            $sql .= " AND (p.name LIKE ? OR p.description LIKE ? OR p.article LIKE ?)";
+            $s = "%{$filters['search']}%";
+            $params[] = $s;
+            $params[] = $s;
+            $params[] = $s;
+        }
+
         $stmt = $this->conn->prepare($sql);
         $stmt->execute($params);
         $result = $stmt->fetch();
