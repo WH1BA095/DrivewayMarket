@@ -16,13 +16,15 @@ ensureCartTable();
 function db(): PDO { return Database::getInstance()->getConnection(); }
 
 function ok(array $data = []): void {
-    ob_end_clean();
+    while (ob_get_level()) ob_end_clean();
+    header('Content-Type: application/json; charset=utf-8');
     echo json_encode(array_merge(['success' => true], $data), JSON_UNESCAPED_UNICODE);
     exit;
 }
 function err(string $msg, int $code = 400): void {
-    ob_end_clean();
+    while (ob_get_level()) ob_end_clean();
     http_response_code($code);
+    header('Content-Type: application/json; charset=utf-8');
     echo json_encode(['success' => false, 'message' => $msg], JSON_UNESCAPED_UNICODE);
     exit;
 }
