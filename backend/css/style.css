@@ -4214,17 +4214,29 @@ body {
 /* Успех */
 .checkout-success {
     text-align: center;
-    padding: 80px 20px;
+    padding: 60px 20px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 16px;
+    gap: 12px;
+    max-width: 480px;
+    margin: 0 auto;
 }
-.success-icon { font-size: 90px; color: #2ecc71; margin-bottom: 10px; }
-.checkout-success h2 { font-size: 30px; font-weight: 700; color: var(--text-color); }
-.checkout-success p { color: var(--text-color); font-size: 16px; }
-.success-sub { font-size: 13px; color: var(--icon-color); }
-.success-actions { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; margin-top: 10px; }
+.success-icon {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: #2ecc71;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 8px;
+}
+.success-icon i { font-size: 34px; color: #fff; }
+.checkout-success h2 { font-size: 26px; font-weight: 800; color: var(--text-color); margin: 0; }
+.checkout-success p { color: var(--text-color); font-size: 15px; margin: 0; }
+.success-sub { font-size: 13px; color: var(--icon-color); opacity: .8; }
+.success-actions { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin-top: 16px; width: 100%; }
 
 .req { color: var(--primary-color); }
 
@@ -4825,10 +4837,11 @@ body {
 .card-visual-chip i { font-size: 28px; color: #f0c040; opacity: .9; }
 .card-visual-type { font-size: 28px; color: rgba(255,255,255,.7); }
 .card-visual-number {
-    font-size: 18px;
-    letter-spacing: 3px;
+    font-size: 20px;
+    letter-spacing: 4px;
     margin-bottom: 16px;
-    word-spacing: 6px;
+    word-spacing: 0;
+    font-family: 'Courier New', monospace;
 }
 .card-visual-bottom {
     display: flex;
