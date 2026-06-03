@@ -127,12 +127,19 @@ $currentUser = getCurrentUser();
             <!-- Поиск -->
             <div class="search-block">
                 <div class="search-container">
-                    <input type="text" placeholder="Поиск запчастей ">
-                    <button class="search-btn-inside">
+                    <input type="text" id="headerSearchInput" placeholder="Поиск запчастей"
+                        onkeydown="if(event.key==='Enter') headerSearch()">
+                    <button class="search-btn-inside" onclick="headerSearch()">
                         <i class="fas fa-search"></i>
                     </button>
                 </div>
             </div>
+            <script>
+            function headerSearch() {
+                const q = document.getElementById('headerSearchInput').value.trim();
+                if (q) window.location.href = 'catalog.php?search=' + encodeURIComponent(q);
+            }
+            </script>
 
             <!-- Правая часть -->
             <div class="header-right-area">

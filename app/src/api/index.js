@@ -4,7 +4,7 @@ import Constants from 'expo-constants';
 
 // ── конфиг ────────────────────────────────────────────────────────────────
 function getServerBase() {
-  if (!__DEV__) return 'https://yourdomain.ru';
+  if (!__DEV__) return 'http://176.98.176.149:8899';
   // На реальном устройстве берём IP Metro-сервера автоматически
   const metroHost = Constants.expoConfig?.hostUri?.split(':')[0];
   if (metroHost) return `http://${metroHost}:8899`;
