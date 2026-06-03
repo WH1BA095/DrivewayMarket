@@ -24,14 +24,24 @@ requireLogin('index.php');
             <a href="catalog.php" class="btn-primary-lg"><i class="fas fa-arrow-left"></i> В каталог</a>
         </div>
 
-        <div id="checkout-success" style="display:none;" class="checkout-success">
-            <div class="success-icon"><i class="fas fa-check-circle"></i></div>
-            <h2>Заказ оформлен!</h2>
-            <p>Номер вашего заказа: <strong id="order-number-display"></strong></p>
-            <p class="success-sub">Мы свяжемся с вами в ближайшее время для подтверждения</p>
-            <div class="success-actions">
-                <a href="profile.php#tab-orders" class="btn-primary-lg"><i class="fas fa-box"></i> Мои заказы</a>
-                <a href="catalog.php" class="btn-outline-lg"><i class="fas fa-arrow-left"></i> Продолжить покупки</a>
+        <div id="checkout-success" style="display:none;" class="checkout-success-wrap">
+            <div class="checkout-success-card">
+                <div class="success-circle">
+                    <i class="fas fa-check"></i>
+                </div>
+                <h2 class="success-title">Заказ оформлен!</h2>
+                <div class="success-order-num">
+                    Номер заказа: <strong id="order-number-display"></strong>
+                </div>
+                <p class="success-hint">Мы свяжемся с вами в ближайшее время для подтверждения</p>
+                <div class="success-actions">
+                    <a href="profile.php#tab-orders" class="btn-primary-lg">
+                        <i class="fas fa-box"></i> Мои заказы
+                    </a>
+                    <a href="catalog.php" class="btn-outline-lg">
+                        <i class="fas fa-arrow-left"></i> Продолжить покупки
+                    </a>
+                </div>
             </div>
         </div>
 
@@ -192,7 +202,7 @@ requireLogin('index.php');
                                         <span class="card-visual-chip"><i class="fas fa-microchip"></i></span>
                                         <span class="card-visual-type" id="cv-type"></span>
                                     </div>
-                                    <div class="card-visual-number" id="cv-number">•••• •••• •••• ••••</div>
+                                    <div class="card-visual-number" id="cv-number"><span>••••</span><span>••••</span><span>••••</span><span>••••</span></div>
                                     <div class="card-visual-bottom">
                                         <div><span class="card-label">Держатель</span><span id="cv-name">ИМЯ ФАМИЛИЯ</span></div>
                                         <div><span class="card-label">Срок</span><span id="cv-expiry">ММ/ГГ</span></div>
@@ -467,10 +477,14 @@ window.onlineTab = function(tab) {
 window.fmtCard = function(el) {
     let v = el.value.replace(/\D/g, '').slice(0, 16);
     el.value = v.replace(/(.{4})/g, '$1 ').trim();
-    document.getElementById('cv-number').textContent =
-        (el.value || '•••• •••• •••• ••••').padEnd(19, '•').replace(/(.{4})/g, '$1 ').trim() || '•••• •••• •••• ••••';
-    const first = v[0];
+
+    // показываем 4 группы по 4 символа в отдельных span
+    const padded = v.padEnd(16, '•');
+    const groups = [padded.slice(0,4), padded.slice(4,8), padded.slice(8,12), padded.slice(12,16)];
+    document.getElementById('cv-number').innerHTML = groups.map(g => `<span>${g}</span>`).join('');
+
     const typeEl = document.getElementById('cv-type');
+    const first = v[0];
     if      (first === '4') typeEl.innerHTML = '<i class="fab fa-cc-visa"></i>';
     else if (first === '5') typeEl.innerHTML = '<i class="fab fa-cc-mastercard"></i>';
     else if (first === '2') typeEl.innerHTML = '<i class="fab fa-cc-mir"></i>';
