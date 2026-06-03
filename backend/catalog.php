@@ -10,6 +10,7 @@ $brand_id = $_GET['brand'] ?? '';
 $model_id = $_GET['model'] ?? '';
 $in_stock = $_GET['in_stock'] ?? '';
 $sort = $_GET['sort'] ?? 'default';
+$search = trim($_GET['search'] ?? '');
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $limit = 12;
 $offset = ($page - 1) * $limit;
@@ -27,7 +28,8 @@ $filters = [
     'brand_id' => $brand_id,
     'model_id' => $model_id,
     'in_stock' => $in_stock,
-    'sort' => $sort
+    'sort' => $sort,
+    'search' => $search,
 ];
 
 $products = $catalog->getProducts($filters, $limit, $offset);
@@ -64,7 +66,13 @@ $filter_url = $base_url . implode('&', $params);
         
         <div class="catalog-header">
             <h1 class="catalog-title">
-                <?= $current_category ? htmlspecialchars($current_category['name']) : 'Каталог товаров' ?>
+                <?php if ($search): ?>
+                    Результаты поиска: «<?= htmlspecialchars($search) ?>»
+                <?php elseif ($current_category): ?>
+                    <?= htmlspecialchars($current_category['name']) ?>
+                <?php else: ?>
+                    Каталог товаров
+                <?php endif; ?>
             </h1>
             <p class="catalog-description">
                 Найдено <?= $total_products ?> товаров
