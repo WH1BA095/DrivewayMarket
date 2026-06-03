@@ -4222,14 +4222,14 @@ body {
     background: var(--card-bg);
     border-radius: 20px;
     box-shadow: 0 8px 40px rgba(0,0,0,.1);
-    padding: 52px 48px;
-    max-width: 480px;
+    padding: 64px 64px;
+    max-width: 600px;
     width: 100%;
     text-align: center;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 14px;
+    gap: 16px;
 }
 .success-circle {
     width: 80px;
