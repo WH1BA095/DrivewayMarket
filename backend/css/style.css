@@ -4214,19 +4214,16 @@ body {
 /* Успех */
 .checkout-success-wrap {
     width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
     padding: 40px 20px 80px;
-    min-height: 60vh;
 }
 .checkout-success-card {
     background: var(--card-bg);
     border-radius: 20px;
     box-shadow: 0 8px 40px rgba(0,0,0,.1);
-    padding: 64px 64px;
+    padding: 64px;
     max-width: 600px;
     width: 100%;
+    margin: 0 auto;
     text-align: center;
     display: flex;
     flex-direction: column;

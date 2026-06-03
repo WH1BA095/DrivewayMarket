@@ -1,6 +1,17 @@
 <?php
 require_once 'config/auth.php';
+require_once 'config/db.php';
 requireLogin('index.php');
+
+$db = Database::getInstance()->getConnection();
+$st = $db->prepare("SELECT firstname, lastname, phone, email, address FROM users WHERE id = ?");
+$st->execute([$_SESSION['user_id']]);
+$userData = $st->fetch(PDO::FETCH_ASSOC);
+
+$uName    = trim(($userData['firstname'] ?? '') . ' ' . ($userData['lastname'] ?? ''));
+$uPhone   = $userData['phone']   ?? '';
+$uEmail   = $userData['email']   ?? '';
+$uAddress = $userData['address'] ?? '';
 ?>
 <?php require_once 'includes/header.php'; ?>
 
@@ -58,16 +69,19 @@ requireLogin('index.php');
                         <div class="profile-form-row">
                             <div class="profile-form-group">
                                 <label>Имя <span class="req">*</span></label>
-                                <input type="text" id="co-name" placeholder="Иван Иванов" class="profile-input" required>
+                                <input type="text" id="co-name" placeholder="Иван Иванов" class="profile-input" required
+                                       value="<?= htmlspecialchars($uName) ?>">
                             </div>
                             <div class="profile-form-group">
                                 <label>Телефон <span class="req">*</span></label>
-                                <input type="tel" id="co-phone" placeholder="+7 (___) ___-__-__" class="profile-input" required>
+                                <input type="tel" id="co-phone" placeholder="+7 (___) ___-__-__" class="profile-input" required
+                                       value="<?= htmlspecialchars($uPhone) ?>">
                             </div>
                         </div>
                         <div class="profile-form-group">
                             <label>Email</label>
-                            <input type="email" id="co-email" placeholder="ivan@example.com" class="profile-input">
+                            <input type="email" id="co-email" placeholder="ivan@example.com" class="profile-input"
+                                   value="<?= htmlspecialchars($uEmail) ?>">
                         </div>
                     </div>
                 </div>
@@ -127,7 +141,8 @@ requireLogin('index.php');
                     <div id="block-courier" class="delivery-extra-block profile-form" style="display:none; margin-top:16px;">
                         <div class="profile-form-group">
                             <label>Адрес доставки <span class="req">*</span></label>
-                            <input type="text" id="co-address" placeholder="г. Москва, ул. Примерная, д. 1" class="profile-input">
+                            <input type="text" id="co-address" placeholder="г. Москва, ул. Примерная, д. 1" class="profile-input"
+                                       value="<?= htmlspecialchars($uAddress) ?>">
                         </div>
                         <div class="profile-form-row">
                             <div class="profile-form-group">
@@ -144,7 +159,8 @@ requireLogin('index.php');
                     <div id="block-post" class="delivery-extra-block profile-form" style="display:none; margin-top:16px;">
                         <div class="profile-form-group">
                             <label>Адрес для отправки <span class="req">*</span></label>
-                            <input type="text" id="co-post-address" placeholder="г. Москва, ул. Примерная, д. 1" class="profile-input">
+                            <input type="text" id="co-post-address" placeholder="г. Москва, ул. Примерная, д. 1" class="profile-input"
+                                       value="<?= htmlspecialchars($uAddress) ?>">
                         </div>
                         <div class="profile-form-row">
                             <div class="profile-form-group">
@@ -153,7 +169,8 @@ requireLogin('index.php');
                             </div>
                             <div class="profile-form-group">
                                 <label>Получатель</label>
-                                <input type="text" id="co-post-recipient" placeholder="Иванов Иван Иванович" class="profile-input">
+                                <input type="text" id="co-post-recipient" placeholder="Иванов Иван Иванович" class="profile-input"
+                                       value="<?= htmlspecialchars($uName) ?>">
                             </div>
                         </div>
                         <div class="post-info-note">
