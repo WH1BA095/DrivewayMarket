@@ -19,6 +19,14 @@ if (empty($tables)) {
     exit;
 }
 
+try { $db->exec("ALTER TABLE orders ADD COLUMN IF NOT EXISTS delivery_type VARCHAR(50) DEFAULT NULL"); } catch (\Throwable $e) {}
+try { $db->exec("ALTER TABLE orders ADD COLUMN IF NOT EXISTS delivery_label VARCHAR(100) DEFAULT NULL"); } catch (\Throwable $e) {}
+try { $db->exec("ALTER TABLE orders ADD COLUMN IF NOT EXISTS delivery_address VARCHAR(500) DEFAULT NULL"); } catch (\Throwable $e) {}
+try { $db->exec("ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_type VARCHAR(50) DEFAULT NULL"); } catch (\Throwable $e) {}
+try { $db->exec("ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_label VARCHAR(100) DEFAULT NULL"); } catch (\Throwable $e) {}
+try { $db->exec("ALTER TABLE orders ADD COLUMN IF NOT EXISTS contact_name VARCHAR(200) DEFAULT NULL"); } catch (\Throwable $e) {}
+try { $db->exec("ALTER TABLE orders ADD COLUMN IF NOT EXISTS contact_phone VARCHAR(50) DEFAULT NULL"); } catch (\Throwable $e) {}
+
 $st = $db->prepare("
     SELECT o.id, o.user_order_number, o.status, o.total, o.address, o.comment, o.created_at,
            o.delivery_type, o.delivery_label, o.delivery_address,
