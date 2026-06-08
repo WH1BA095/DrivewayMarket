@@ -54,7 +54,7 @@ export default function CartScreen({ navigation }) {
   const closeSbpModal = () => {
     clearInterval(timerRef.current);
     setSbpModal(false);
-    navigation.navigate('ProfileTab', { screen: 'Orders' });
+    navigation.navigate('ProfileTab', { screen: 'ProfileMain' });
   };
 
   useEffect(() => () => clearInterval(timerRef.current), []);

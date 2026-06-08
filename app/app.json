@@ -1,10 +1,10 @@
 {
   "expo": {
-    "name": "Driveway",
+    "name": "DrivewayMarket",
     "slug": "driveway-app",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/bigLogo11.png",
+    "icon": "./assets/icon-light.png",
     "userInterfaceStyle": "automatic",
     "splash": {
       "backgroundColor": "#E3160B",
@@ -12,7 +12,14 @@
     },
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "ru.driveway.app"
+      "bundleIdentifier": "ru.driveway.app",
+      "icon": "./assets/icon-light.png",
+      "darkModeIcon": "./assets/icon-dark.png",
+      "infoPlist": {
+        "NSAppTransportSecurity": {
+          "NSAllowsArbitraryLoads": true
+        }
+      }
     },
     "android": {
       "adaptiveIcon": {
