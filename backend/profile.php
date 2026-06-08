@@ -435,6 +435,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     total:    o.total,
                     address:  o.address,
                     comment:  o.comment,
+                    delivery: o.delivery || null,
+                    payment:  o.payment  || null,
+                    contact:  o.contact  || null,
                     items:    (o.items || []).map(i => ({
                         name:    i.name,
                         article: i.article,
@@ -482,14 +485,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 <a href="catalog.php" class="btn-primary-lg"><i class="fas fa-search"></i> Перейти в каталог</a>
             </div>`;
     } else {
+        const STATUS_MAP = {
+            pending:   ['Новый',       'pending'],
+            confirmed: ['Подтверждён', 'confirmed'],
+            shipped:   ['Отправлен',   'shipped'],
+            delivered: ['Доставлен',   'done'],
+            cancelled: ['Отменён',     'cancelled'],
+        };
         ordersList.innerHTML = orders.map(o => {
-            const delIcon  = DELIVERY_ICONS[(o.delivery && o.delivery.type) || 'courier'] || 'fa-truck';
-            const payIcon  = PAYMENT_ICONS[(o.payment && o.payment.type)   || 'online_card'] || 'fa-credit-card';
-            const delLabel = (o.delivery && o.delivery.label) || (o.delivery && o.delivery.type) || 'Доставка';
-            const payLabel = (o.payment && o.payment.label)   || (o.payment && o.payment.type)   || 'Оплата';
-            const delAddr  = renderDeliveryAddress(o.delivery);
-            const contactName  = o.contact ? escHtml(o.contact.name)  : escHtml(o.name  || '');
-            const contactPhone = o.contact ? escHtml(o.contact.phone) : escHtml(o.phone || '');
+            const [statusLabel, statusKey] = STATUS_MAP[o.status] || [o.status, 'pending'];
+            const hasDelivery = o.delivery && o.delivery.type;
+            const hasPayment  = o.payment  && o.payment.type;
+            const delIcon  = DELIVERY_ICONS[hasDelivery ? o.delivery.type : ''] || 'fa-truck';
+            const payIcon  = PAYMENT_ICONS[hasPayment   ? o.payment.type  : ''] || 'fa-credit-card';
+            const delLabel = hasDelivery ? (o.delivery.label || o.delivery.type) : (o.address && o.address !== '' ? o.address : null);
+            const payLabel = hasPayment  ? (o.payment.label  || o.payment.type)  : null;
+            const delAddr  = hasDelivery ? renderDeliveryAddress(o.delivery) : '';
+            const contactName  = o.contact ? escHtml(o.contact.name  || '') : '';
+            const contactPhone = o.contact ? escHtml(o.contact.phone || '') : '';
 
             const itemsHtml = (o.items || []).map(i => `
                 <tr>
@@ -502,9 +515,10 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="order-receipt" id="order-${o.id}">
                 <div class="receipt-head">
                     <div class="receipt-head-left">
-                        <span class="receipt-number">Заказ&nbsp;#${escHtml(o.displayNum)}</span>
+                        <span class="receipt-number">Заказ&nbsp;#${escHtml(String(o.displayNum))}</span>
                         <span class="receipt-date">${escHtml(o.date)}</span>
                     </div>
+                    <span class="order-status order-status-${statusKey}">${escHtml(statusLabel)}</span>
                 </div>
 
                 <table class="receipt-items">
@@ -518,27 +532,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 </table>
 
                 <div class="receipt-meta">
-                    <div class="receipt-meta-item">
+                    ${delLabel ? `<div class="receipt-meta-item">
                         <i class="fas ${delIcon}"></i>
                         <div>
                             <span class="rmeta-label">Доставка</span>
                             <span class="rmeta-val">${escHtml(delLabel)}${delAddr}</span>
                         </div>
-                    </div>
-                    <div class="receipt-meta-item">
+                    </div>` : ''}
+                    ${payLabel ? `<div class="receipt-meta-item">
                         <i class="fas ${payIcon}"></i>
                         <div>
                             <span class="rmeta-label">Оплата</span>
                             <span class="rmeta-val">${escHtml(payLabel)}</span>
                         </div>
-                    </div>
-                    <div class="receipt-meta-item">
+                    </div>` : ''}
+                    ${contactName ? `<div class="receipt-meta-item">
                         <i class="fas fa-user"></i>
                         <div>
                             <span class="rmeta-label">Получатель</span>
                             <span class="rmeta-val">${contactName}${contactPhone ? '<br><small>'+contactPhone+'</small>' : ''}</span>
                         </div>
-                    </div>
+                    </div>` : ''}
                 </div>
 
                 ${o.comment ? `<div class="receipt-comment"><i class="fas fa-comment-alt"></i> ${escHtml(o.comment)}</div>` : ''}

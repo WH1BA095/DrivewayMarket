@@ -1,4 +1,4 @@
-# Driveway — Интернет-магазин автозапчастей
+# DrivewayMarket — Интернет-магазин автозапчастей
 
 Полноценный интернет-магазин автозапчастей: веб-сайт на PHP + мобильное приложение на React Native (Expo). Единая база данных MariaDB, двунаправленная синхронизация корзины между сайтом и приложением.
 
@@ -9,7 +9,7 @@
 | Слой | Технологии |
 |------|-----------|
 | Веб-сайт | PHP 8.2, HTML/CSS/JS, сессионная авторизация |
-| Мобильное приложение | React Native 0.74, Expo 51, React Navigation |
+| Мобильное приложение | React Native 0.74, Expo SDK 51, React Navigation |
 | API | REST JSON API (token-based, Bearer) |
 | База данных | MariaDB 12.2 |
 | Инфраструктура | Docker, Nginx, PHP-FPM |
@@ -23,12 +23,12 @@
 driveway-project/
 ├── backend/              # Веб-сайт и API
 │   ├── api/              # REST API для мобильного приложения
-│   │   ├── app.php       # Основной обработчик (авторизация, товары, заказы)
+│   │   ├── app.php       # Основной обработчик (авторизация, товары, заказы, СБП)
 │   │   ├── auth.php      # Профиль, избранное, автомобили пользователя
 │   │   ├── cart.php      # Синхронизация корзины (сессии)
 │   │   ├── availability.php  # Актуальные остатки товаров
-│   │   ├── reviews.php   # Отзывы
-│   │   ├── save_order.php    # Создание заказа
+│   │   ├── reviews.php   # Отзывы и вопросы
+│   │   ├── save_order.php    # Создание заказа (доставка, оплата, контакт)
 │   │   └── get_orders.php   # История заказов
 │   ├── admin/            # Панель администратора
 │   ├── config/           # Подключение к БД, функции авторизации
@@ -39,14 +39,17 @@ driveway-project/
 │   ├── catalog.php       # Каталог товаров
 │   ├── product.php       # Страница товара
 │   ├── cart.php          # Корзина
-│   └── checkout.php      # Оформление заказа
-├── app/                  # Мобильное приложение (React Native)
+│   ├── checkout.php      # Оформление заказа
+│   └── profile.php       # Личный кабинет
+├── app/                  # Мобильное приложение (React Native / Expo)
+│   ├── app.json          # Конфигурация Expo (иконки, разрешения, ATS)
+│   ├── assets/           # Иконки приложения
 │   └── src/
 │       ├── api/          # Обёртка над REST API
 │       ├── components/   # ProductCard, CategoryCard, StarRating, Logo
 │       ├── context/      # AuthContext, CartContext, ThemeContext
 │       ├── navigation/   # Структура навигации (Bottom Tabs)
-│       └── screens/      # Home, Catalog, Product, Cart, Profile и др.
+│       └── screens/      # Home, Catalog, Product, Cart, Profile, Orders и др.
 ├── migrate/              # SQL-миграции
 │   ├── 001_init_schema.sql
 │   └── 002_seed_data.sql
@@ -65,8 +68,9 @@ driveway-project/
 ### Требования
 
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/)
-- [Node.js](https://nodejs.org/) 
-- [Expo Go](https://expo.dev/client) на телефоне или iOS Simulator / Android Emulator
+- [Node.js](https://nodejs.org/) 18+
+- Для сборки iOS: macOS + Xcode 15+
+- Для сборки Android: Android Studio + Java 17
 
 ### 1. Запуск бэкенда
 
@@ -83,17 +87,38 @@ docker compose up -d
 
 База данных поднимается автоматически, миграции применяются при первом старте из папки `migrate/`.
 
-### 2. Запуск мобильного приложения
+### 2. Запуск мобильного приложения (разработка)
 
 ```bash
 cd app
 npm install
-npm start        # или: npx expo start
+npx expo start
 ```
 
-Откроется Expo Dev Tools. Отсканируй QR-код в Expo Go, или нажми `i` для iOS Simulator / `a` для Android.
+Отсканируй QR-код в [Expo Go](https://expo.dev/client), или нажми `i` для iOS Simulator / `a` для Android Emulator.
 
-> **Важно:** приложение обращается к API по адресу из `app/src/api/index.js`. При запуске на реальном устройстве замени `localhost` на IP своей машины в локальной сети.
+> **Важно:** адрес API задан в `app/src/api/index.js`. При запуске на реальном устройстве он должен указывать на IP сервера или машины в локальной сети.
+
+### 3. Нативная сборка для установки на устройство
+
+Приложение собирается в нативный бинарник (без Expo Go) и устанавливается напрямую:
+
+**iOS** (требует macOS + Xcode):
+```bash
+cd app
+npx expo prebuild --platform ios --clean
+npx expo run:ios --configuration Release --device
+```
+После установки: **Настройки → Основные → VPN и управление устройством → Доверять**.
+Подпись действительна 7 дней (бесплатный Apple ID).
+
+**Android**:
+```bash
+cd app
+npx expo prebuild --platform android --clean
+export JAVA_HOME=$(/usr/libexec/java_home -v 17)   # macOS
+npx expo run:android --variant release --device
+```
 
 ---
 
@@ -103,19 +128,23 @@ npm start        # или: npx expo start
 - Каталог товаров с фильтрацией по категориям, поиском и пагинацией
 - Страница товара с галереей, описанием, отзывами и рейтингом
 - Корзина с валидацией остатков в реальном времени
-- Оформление заказа (наличные / онлайн-оплата картой с проверкой по алгоритму Луна)
-- Личный кабинет: история заказов, профиль, список автомобилей
+- Оформление заказа: курьер / самовывоз / Почта России
+- Оплата: онлайн картой (алгоритм Луна), СБП (QR-код), при получении
+- Личный кабинет: история заказов с деталями доставки и оплаты, профиль, список автомобилей
 - Тёмная / светлая тема
 - Адаптивный дизайн
 - Панель администратора: управление товарами, заказами, отзывами, экспорт
 
-### Мобильное приложение
+### Мобильное приложение (DrivewayMarket)
 - Главная страница: поиск, категории, популярные товары
-- Каталог с фильтрами
+- Каталог с фильтрами по категориям
 - Корзина с синхронизацией с сайтом
-- Авторизация, регистрация, профиль
-- Избранное, автомобили пользователя
+- Оформление заказа с оплатой по СБП (QR-код в приложении)
+- Авторизация, регистрация, личный кабинет
+- История заказов
+- Избранное, список автомобилей пользователя
 - Светлая / тёмная тема
+- Поддержка iOS 15+ и Android (API 23+)
 
 ### Синхронизация корзины
 Корзина полностью синхронизируется между сайтом и приложением в обе стороны:
@@ -127,7 +156,7 @@ npm start        # или: npx expo start
 
 ## API
 
-Базовый URL: `http://localhost:8899/api/app.php`
+Базовый URL: `http://<host>:8899/api/app.php`
 
 Авторизация: `Authorization: Bearer <token>`
 
@@ -141,8 +170,10 @@ npm start        # или: npx expo start
 | GET | `get_cart` | Корзина пользователя |
 | POST | `sync_cart` | Синхронизация корзины |
 | POST | `clear_cart` | Очистить корзину |
-| GET | `get_orders` | История заказов |
-| POST | `save_order` | Создать заказ |
+| GET | `my_orders` | История заказов |
+| POST | `place_order` | Создать заказ (delivery, payment, contact) |
+| POST | `sbp_pay` | Инициировать оплату по СБП |
+| GET | `sbp_status` | Статус оплаты СБП |
 | GET | `favorites` | Избранное |
 | POST | `toggle_favorite` | Добавить / убрать из избранного |
 
@@ -180,37 +211,42 @@ npm test
 
 ## Переменные окружения
 
-Для локального запуска создай файл `.env` в корне проекта:
+Создай файл `.env` в корне проекта:
 
 ```env
 MYSQL_ROOT_PASSWORD=rootpassword
 MYSQL_DATABASE=driveway_db
 MYSQL_USER=driveway_user
 MYSQL_PASSWORD=driveway_pass
+DB_HOST=mariadb
+DB_NAME=driveway_db
+DB_USER=driveway_user
+DB_PASS=driveway_pass
 ```
 
 ---
 
-## Образы
+## Docker-образы
 
-### Nginx
-Образ, который выступает в роли фронта хранится на `whnba095/driveway-project-frontend`.
-В нем реализован root-less запуск nginx сервера, в `docker-compose` убраны лишние capabilities.
+### Nginx (frontend)
+Образ: `whnba095/driveway-project-frontend`  
+Root-less запуск, убраны лишние capabilities. Вес: **61.4 MB**
 
-Вес образа - `61.4MB`
-
-### Php
-Образ, который выступает в роли фронта хранится на `whnba095/driveway-project-backend`.
-В нем реализован root-less запуск backend, в `docker-compose` убраны лишние capabilities.
-
-Вес образа - `164MB`
+### PHP-FPM (backend)
+Образ: `whnba095/driveway-project-backend`  
+Root-less запуск, убраны лишние capabilities. Вес: **164 MB**
 
 ---
-## Actions
 
-Реализован `github action` пайплайн, который автоматически проводит `unit-тесты` и собирает образ с последующей отправкой в `dockerhub`.
+## CI/CD
+
+GitHub Actions пайплайн автоматически:
+1. Запускает PHPUnit и Jest тесты
+2. Собирает Docker-образы
+3. Публикует в Docker Hub
 
 ---
+
 ## Лицензия
 
 Учебный проект. Все права защищены.

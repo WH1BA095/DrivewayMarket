@@ -175,7 +175,7 @@ export default function HomeScreen({ navigation }) {
         <View style={s.sectionHeader}>
           <Text style={[s.sectionTitle, { color: colors.text }]}>Категории</Text>
           <TouchableOpacity onPress={() => navigation.navigate('CatalogTab')}>
-            <Text style={[s.seeAll, { color: colors.primary }]}>Все товары →</Text>
+            <Text style={[s.seeAll, { color: colors.primary }]}>Все товары ›</Text>
           </TouchableOpacity>
         </View>
 
@@ -202,7 +202,7 @@ export default function HomeScreen({ navigation }) {
         <View style={s.sectionHeader}>
           <Text style={[s.sectionTitle, { color: colors.text }]}>Популярные товары</Text>
           <TouchableOpacity onPress={() => navigation.navigate('CatalogTab')}>
-            <Text style={[s.seeAll, { color: colors.primary }]}>Все →</Text>
+            <Text style={[s.seeAll, { color: colors.primary }]}>Все ›</Text>
           </TouchableOpacity>
         </View>
 

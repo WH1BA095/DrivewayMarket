@@ -75,7 +75,7 @@ $lowStockList = $db->query('
 $recentUsers = $db->query('
     SELECT id, email,
            TRIM(CONCAT(COALESCE(NULLIF(firstname,""),""), " ", COALESCE(NULLIF(lastname,""),""))),
-           full_name, created_at
+           full_name, created_at, avatar
     FROM users WHERE is_admin = 0
     ORDER BY created_at DESC LIMIT 6
 ')->fetchAll(PDO::FETCH_NUM);
@@ -83,7 +83,7 @@ $recentUsers = $db->query('
 $recentUsersFmt = [];
 foreach ($recentUsers as $u) {
     $name = trim($u[2]) ?: $u[3] ?: '—';
-    $recentUsersFmt[] = ['email' => $u[1], 'name' => $name, 'created_at' => $u[4]];
+    $recentUsersFmt[] = ['email' => $u[1], 'name' => $name, 'created_at' => $u[4], 'avatar' => $u[5]];
 }
 
 function fmtMoney(float $v): string { return number_format($v, 0, '.', ' ') . ' ₽'; }
@@ -305,7 +305,11 @@ $adminAvatar = $adminAvatarRow->fetchColumn();
                             <tr>
                                 <td>
                                     <div class="u-row">
+                                        <?php if (!empty($u['avatar'])): ?>
+                                        <img src="../<?= h($u['avatar']) ?>" class="u-avatar" style="object-fit:cover;padding:0;">
+                                        <?php else: ?>
                                         <div class="u-avatar"><?= strtoupper(substr($u['name'], 0, 1)) ?></div>
+                                        <?php endif; ?>
                                         <?= h($u['name']) ?>
                                     </div>
                                 </td>

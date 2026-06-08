@@ -78,6 +78,24 @@ $db->exec("CREATE TABLE IF NOT EXISTS `order_items` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
 
 try { $db->exec("ALTER TABLE orders ADD COLUMN IF NOT EXISTS user_order_number INT UNSIGNED DEFAULT NULL"); } catch (\Throwable $e) {}
+try { $db->exec("ALTER TABLE orders ADD COLUMN IF NOT EXISTS delivery_type VARCHAR(50) DEFAULT NULL"); } catch (\Throwable $e) {}
+try { $db->exec("ALTER TABLE orders ADD COLUMN IF NOT EXISTS delivery_label VARCHAR(100) DEFAULT NULL"); } catch (\Throwable $e) {}
+try { $db->exec("ALTER TABLE orders ADD COLUMN IF NOT EXISTS delivery_address VARCHAR(500) DEFAULT NULL"); } catch (\Throwable $e) {}
+try { $db->exec("ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_type VARCHAR(50) DEFAULT NULL"); } catch (\Throwable $e) {}
+try { $db->exec("ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_label VARCHAR(100) DEFAULT NULL"); } catch (\Throwable $e) {}
+try { $db->exec("ALTER TABLE orders ADD COLUMN IF NOT EXISTS contact_name VARCHAR(200) DEFAULT NULL"); } catch (\Throwable $e) {}
+try { $db->exec("ALTER TABLE orders ADD COLUMN IF NOT EXISTS contact_phone VARCHAR(50) DEFAULT NULL"); } catch (\Throwable $e) {}
+
+$delivery        = $data['delivery'] ?? [];
+$payment         = $data['payment']  ?? [];
+$contact         = $data['contact']  ?? [];
+$deliveryType    = $delivery['type']    ?? null;
+$deliveryLabel   = $delivery['label']   ?? null;
+$deliveryAddress = $address ?: ($delivery['address'] ?? '');
+$paymentType     = $payment['type']     ?? null;
+$paymentLabel    = $payment['label']    ?? null;
+$contactName     = $contact['name']     ?? null;
+$contactPhone    = $contact['phone']    ?? null;
 
 $db->beginTransaction();
 try {
@@ -85,8 +103,8 @@ try {
     $nSt->execute([$userId]);
     $userOrderNum = (int)$nSt->fetchColumn();
 
-    $st = $db->prepare('INSERT INTO orders (user_id, status, total, address, comment, user_order_number) VALUES (?, \'pending\', ?, ?, ?, ?)');
-    $st->execute([$userId, $total, $address ?: ($data['delivery']['address'] ?? ''), $comment, $userOrderNum]);
+    $st = $db->prepare('INSERT INTO orders (user_id, status, total, address, comment, user_order_number, delivery_type, delivery_label, delivery_address, payment_type, payment_label, contact_name, contact_phone) VALUES (?, \'pending\', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+    $st->execute([$userId, $total, $deliveryAddress, $comment, $userOrderNum, $deliveryType, $deliveryLabel, $deliveryAddress, $paymentType, $paymentLabel, $contactName, $contactPhone]);
     $orderId = (int)$db->lastInsertId();
 
     $st = $db->prepare('INSERT INTO order_items (order_id, product_id, name, article, price, quantity) VALUES (?,?,?,?,?,?)');

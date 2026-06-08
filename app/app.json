@@ -23,10 +23,11 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/bigLogo11.png",
+        "foregroundImage": "./assets/adaptive-icon-fg.png",
         "backgroundColor": "#E3160B"
       },
-      "package": "ru.driveway.app"
+      "package": "ru.driveway.app",
+      "usesCleartextTraffic": true
     },
     "plugins": [
       "expo-secure-store",
@@ -35,6 +36,14 @@
         "expo-image-picker",
         {
           "photosPermission": "Приложению нужен доступ к галерее для установки фото профиля."
+        }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "usesCleartextTraffic": true
+          }
         }
       ]
     ]

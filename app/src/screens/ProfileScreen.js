@@ -368,7 +368,6 @@ export default function ProfileScreen({ navigation }) {
                 style={[styles.tabGridItem, {
                   backgroundColor: active ? colors.primaryLight : colors.card,
                   borderColor: active ? colors.primary : colors.border,
-                  ...shadows.sm,
                 }]}
                 onPress={() => setTab(t.key)}
                 activeOpacity={0.75}

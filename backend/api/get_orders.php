@@ -21,6 +21,9 @@ if (empty($tables)) {
 
 $st = $db->prepare("
     SELECT o.id, o.user_order_number, o.status, o.total, o.address, o.comment, o.created_at,
+           o.delivery_type, o.delivery_label, o.delivery_address,
+           o.payment_type, o.payment_label,
+           o.contact_name, o.contact_phone,
            GROUP_CONCAT(oi.name ORDER BY oi.id SEPARATOR ', ') AS items_summary,
            COUNT(oi.id) AS item_count, SUM(oi.quantity) AS total_qty
     FROM orders o
@@ -51,7 +54,33 @@ foreach ($orders as &$o) {
     $o['id']                = (int)$o['id'];
     $o['user_order_number'] = (int)($o['user_order_number'] ?? $o['id']);
     $o['source']            = 'db';
-    unset($o['items_summary'], $o['total_qty']);
+
+    if ($o['delivery_type']) {
+        $o['delivery'] = [
+            'type'    => $o['delivery_type'],
+            'label'   => $o['delivery_label'] ?: $o['delivery_type'],
+            'address' => $o['delivery_address'] ?: $o['address'],
+        ];
+    } else {
+        $o['delivery'] = null;
+    }
+    if ($o['payment_type']) {
+        $o['payment'] = [
+            'type'  => $o['payment_type'],
+            'label' => $o['payment_label'] ?: $o['payment_type'],
+        ];
+    } else {
+        $o['payment'] = null;
+    }
+    $o['contact'] = [
+        'name'  => $o['contact_name']  ?: '',
+        'phone' => $o['contact_phone'] ?: '',
+    ];
+
+    unset($o['items_summary'], $o['total_qty'],
+          $o['delivery_type'], $o['delivery_label'], $o['delivery_address'],
+          $o['payment_type'], $o['payment_label'],
+          $o['contact_name'], $o['contact_phone']);
 }
 
 echo json_encode(['success' => true, 'orders' => $orders], JSON_UNESCAPED_UNICODE);
